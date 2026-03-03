@@ -18,16 +18,16 @@ IGTest >> sequencialMethod [
 { #category : 'tests' }
 IGTest >> testCoverageInstrumentAStatement [
 	
-	| instrumentation hook coverage result methodToInstrument |
+	| instrumentation hook collector result methodToInstrument |
 	
-	coverage := Dictionary new.
-	hook := IGAfterStatementHook new do: [ :statement | coverage at: statement put: true ].
+	collector := IGCollector new.
+	hook := IGAfterStatementHook new do: collector.
 	instrumentation := IGInstrumentation new addHook: hook.
 	methodToInstrument := IGTest >> #sequencialMethod.
 	
 	result := instrumentation instrument: methodToInstrument during: [ self sequencialMethod ].
 	
 	methodToInstrument ast statements do: [ :statement |
-		self assert: (coverage at: statement)  equals: true.
+		self assert: (collector includes: statement)
 	]
 ]

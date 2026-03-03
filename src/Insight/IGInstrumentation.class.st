@@ -27,15 +27,17 @@ IGInstrumentation >> initialize [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> instrument: method [ 
 	
-	| ast |
+	| instrumentedAST originalAST |
 	
 	oldMethod := method.
+	
+	originalAST := method ast.
 
-	ast := (hooks inject: method ast copy into: [ :ast :hook |
-		hook install: ast
+	instrumentedAST := (hooks inject: originalAST copy into: [ :currAST :hook |
+		hook install: currAST original: originalAST
 	]).
 
-	newMethod := method methodClass compiler ast: ast; compile.
+	newMethod := method methodClass compiler ast: instrumentedAST; compile.
 	
 	"TODO: refactor me, please"
 	method methodClass methodDict at: newMethod selector put: newMethod.

@@ -16,19 +16,23 @@ IGAfterStatementHook >> do: aBlock [
 ]
 
 { #category : 'actions' }
-IGAfterStatementHook >> install: ast [
-	
-	ast allStatements do: [ :statement | self rewrite: statement ].
+IGAfterStatementHook >> install: ast original: originalAST [
+
+	(ast allStatements collect: [ :statement | { statement . originalAST childAtPath: (statement treePath) } ]) do: [ :pair |
+		self rewrite: pair first original: pair second 
+	].
 	
 	^ ast
 ]
 
 { #category : 'as yet unclassified' }
-IGAfterStatementHook >> rewrite: statementNode [ 
+IGAfterStatementHook >> rewrite: statementNode original: originalNode [
 
 	| afterNode |
 	
-	afterNode := OCMessageNode receiver: (OCLiteralNode value: block) selector: #value: arguments: { OCLiteralNode value: statementNode }.
+	afterNode := OCMessageNode receiver: (OCLiteralNode value: block) selector: #value: arguments: {
+		OCLiteralNode value: originalNode
+	}.
 
 	statementNode parent replaceNode: statementNode withNodes: { statementNode . afterNode }
 ]
