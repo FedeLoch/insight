@@ -1,8 +1,9 @@
 Class {
 	#name : 'IGTest',
 	#superclass : 'TestCase',
-	#category : 'Insight',
-	#package : 'Insight'
+	#category : 'Insight-Tests',
+	#package : 'Insight',
+	#tag : 'Tests'
 }
 
 { #category : 'tests' }
@@ -16,13 +17,28 @@ IGTest >> sequencialMethod [
 ]
 
 { #category : 'tests' }
-IGTest >> testCoverageInstrumentAStatement [
+IGTest >> testCollectArbitraryValueWithAnAfterStatementHook [
 	
-	| instrumentation hook collector result methodToInstrument |
+	| instrumentation afterHook collector result methodToInstrument |
+	
+	collector := IGCollector collect: [ :instrumentationContext | instrumentationContext receiver ].
+	afterHook := IGAfterStatementHook new do: collector.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	methodToInstrument := IGTest >> #sequencialMethod.
+	
+	result := instrumentation instrument: methodToInstrument during: [ self sequencialMethod ].
+	
+	self assert: (collector includes: self)
+]
+
+{ #category : 'tests' }
+IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
+	
+	| instrumentation afterHook collector result methodToInstrument |
 	
 	collector := IGCollector new.
-	hook := IGAfterStatementHook new do: collector.
-	instrumentation := IGInstrumentation new addHook: hook.
+	afterHook := IGAfterStatementHook new do: collector.
+	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #sequencialMethod.
 	
 	result := instrumentation instrument: methodToInstrument during: [ self sequencialMethod ].

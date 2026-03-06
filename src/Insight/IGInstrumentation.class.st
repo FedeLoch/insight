@@ -25,22 +25,25 @@ IGInstrumentation >> initialize [
 ]
 
 { #category : 'as yet unclassified' }
-IGInstrumentation >> instrument: method [ 
-	
+IGInstrumentation >> instrument: method [
+
 	| instrumentedAST originalAST |
-	
 	oldMethod := method.
-	
+
 	originalAST := method ast.
 
-	instrumentedAST := (hooks inject: originalAST copy into: [ :currAST :hook |
-		hook install: currAST original: originalAST
-	]).
+	instrumentedAST := hooks
+		                   inject: originalAST copy
+		                   into: [ :currAST :hook |
+		                   hook install: currAST original: originalAST ].
 
-	newMethod := method methodClass compiler ast: instrumentedAST; compile.
-	
+	newMethod := method methodClass compiler
+		             ast: instrumentedAST;
+		             doSemanticAnalysis;
+		             compile.
+
 	"TODO: refactor me, please"
-	method methodClass methodDict at: newMethod selector put: newMethod.
+	method methodClass methodDict at: newMethod selector put: newMethod
 ]
 
 { #category : 'as yet unclassified' }

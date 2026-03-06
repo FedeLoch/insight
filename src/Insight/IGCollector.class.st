@@ -1,12 +1,32 @@
 Class {
 	#name : 'IGCollector',
-	#superclass : 'Object',
+	#superclass : 'IGAction',
 	#instVars : [
-		'collection'
+		'collection',
+		'collectionProperty'
 	],
-	#category : 'Insight',
-	#package : 'Insight'
+	#category : 'Insight-Instrumentation Action',
+	#package : 'Insight',
+	#tag : 'Instrumentation Action'
 }
+
+{ #category : 'enumerating' }
+IGCollector class >> collect: aBlock [
+
+	^ self new collectionProperty: aBlock
+]
+
+{ #category : 'accessing' }
+IGCollector >> collectionProperty [
+
+	^ collectionProperty
+]
+
+{ #category : 'accessing' }
+IGCollector >> collectionProperty: anObject [
+
+	collectionProperty := anObject
+]
 
 { #category : 'testing' }
 IGCollector >> includes: aValue [
@@ -19,10 +39,11 @@ IGCollector >> initialize [
 
 	super initialize.
 	collection := IdentitySet new.
+	collectionProperty := [ :instrumentationContext | instrumentationContext astNode ]
 ]
 
 { #category : 'accessing' }
-IGCollector >> value: aValue [
+IGCollector >> value: value [
 
-	collection add: aValue 
+	collection add: value
 ]

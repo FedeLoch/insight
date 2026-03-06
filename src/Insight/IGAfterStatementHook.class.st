@@ -2,7 +2,7 @@ Class {
 	#name : 'IGAfterStatementHook',
 	#superclass : 'Object',
 	#instVars : [
-		'block'
+		'action'
 	],
 	#category : 'Insight-Hooks',
 	#package : 'Insight',
@@ -10,16 +10,16 @@ Class {
 }
 
 { #category : 'enumerating' }
-IGAfterStatementHook >> do: aBlock [
+IGAfterStatementHook >> do: anAction [
 
-	block := aBlock
+	action := anAction
 ]
 
 { #category : 'actions' }
 IGAfterStatementHook >> install: ast original: originalAST [
 
 	(ast allStatements collect: [ :statement | { statement . originalAST childAtPath: (statement treePath) } ]) do: [ :pair |
-		self rewrite: pair first original: pair second 
+		self rewrite: pair first original: pair second
 	].
 	
 	^ ast
@@ -28,11 +28,16 @@ IGAfterStatementHook >> install: ast original: originalAST [
 { #category : 'as yet unclassified' }
 IGAfterStatementHook >> rewrite: statementNode original: originalNode [
 
-	| afterNode |
-	
-	afterNode := OCMessageNode receiver: (OCLiteralNode value: block) selector: #value: arguments: {
-		OCLiteralNode value: originalNode
-	}.
+	| afterNode context |
+	context := IGInstrumentationContext new astNode: originalNode.
 
-	statementNode parent replaceNode: statementNode withNodes: { statementNode . afterNode }
+	afterNode := OCMessageNode
+		             receiver: (OCLiteralNode value: action)
+		             selector: #value:
+		             arguments:
+		             { (action collectionProperty value: context) }.
+
+	statementNode parent replaceNode: statementNode withNodes: {
+			statementNode.
+			afterNode }
 ]
