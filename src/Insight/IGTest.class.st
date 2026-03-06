@@ -60,6 +60,27 @@ IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 ]
 
 { #category : 'tests' }
+IGTest >> testCounterPerStatement [
+	
+	| instrumentation afterHook counter result methodToInstrument |
+	
+	counter := IGCounter new countKeyBy: [ :context | context astNode ].
+	afterHook := IGAfterStatementHook new do: counter.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	methodToInstrument := IGTest >> #incrementingTvariable.
+	
+	methodToInstrument ast statements do: [ :node |
+		self assert: (counter countAt: node) equals: 0		
+	].
+
+	result := instrumentation instrument: methodToInstrument during: [ self incrementingTvariable ].
+	
+	methodToInstrument ast statements do: [ :node |
+		self assert: (counter countAt: node) equals: 1		
+	].
+]
+
+{ #category : 'tests' }
 IGTest >> testCounterWithAnAfterStatementHook [
 	
 	| instrumentation afterHook counter result methodToInstrument |
