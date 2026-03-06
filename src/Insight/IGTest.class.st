@@ -60,6 +60,23 @@ IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 ]
 
 { #category : 'tests' }
+IGTest >> testCounterWithAnAfterStatementHook [
+	
+	| instrumentation afterHook counter result methodToInstrument |
+	
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	methodToInstrument := IGTest >> #incrementingTvariable.
+
+	self assert: counter count equals: 0.
+
+	result := instrumentation instrument: methodToInstrument during: [ self incrementingTvariable ].
+	
+	self assert: counter count equals: 2.
+]
+
+{ #category : 'tests' }
 IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
 	
 	| instrumentation afterHook collector result methodToInstrument |

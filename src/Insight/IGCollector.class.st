@@ -48,6 +48,15 @@ IGCollector >> initialize [
 	collectionProperty := [ :instrumentationContext | instrumentationContext astNode ]
 ]
 
+{ #category : 'as yet unclassified' }
+IGCollector >> instrumentationNodeFor: context [
+
+	^ OCMessageNode
+		  receiver: (OCLiteralNode value: self)
+		  selector: #value:
+		  arguments: { (collectionProperty value: context) }
+]
+
 { #category : 'accessing' }
 IGCollector >> value: value [
 

@@ -59,12 +59,7 @@ IGStatementHook >> rewrite: statementNode original: originalNode [
 	| newNode context |
 	context := IGInstrumentationContext new astNode: originalNode.
 
-	newNode := OCMessageNode
-		             receiver: (OCLiteralNode value: action)
-		             selector: #value:
-		             arguments:
-		             { (action collectionProperty value: context) }.
+	newNode := action instrumentationNodeFor: context.
 
-	self insertHookNode: newNode for: statementNode.
-
+	self insertHookNode: newNode for: statementNode
 ]

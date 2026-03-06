@@ -5,3 +5,9 @@ Class {
 	#package : 'Insight',
 	#tag : 'Instrumentation Action'
 }
+
+{ #category : 'as yet unclassified' }
+IGAction >> instrumentationNodeFor: context [
+
+	self subclassResponsibility 
+]
