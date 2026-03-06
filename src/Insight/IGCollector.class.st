@@ -17,6 +17,12 @@ IGCollector class >> collect: aBlock [
 ]
 
 { #category : 'accessing' }
+IGCollector >> collection [
+
+	^ collection
+]
+
+{ #category : 'accessing' }
 IGCollector >> collectionProperty [
 
 	^ collectionProperty
@@ -38,7 +44,7 @@ IGCollector >> includes: aValue [
 IGCollector >> initialize [ 
 
 	super initialize.
-	collection := IdentitySet new.
+	collection := OrderedCollection new.
 	collectionProperty := [ :instrumentationContext | instrumentationContext astNode ]
 ]
 

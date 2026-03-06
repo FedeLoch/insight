@@ -7,6 +7,15 @@ Class {
 }
 
 { #category : 'tests' }
+IGTest >> incrementingTvariable [
+
+	| t |
+	
+	t := 0.
+	t := t + 1
+]
+
+{ #category : 'tests' }
 IGTest >> sequencialMethod [
 
 	1 + 2.
@@ -29,6 +38,25 @@ IGTest >> testCollectArbitraryValueWithAnAfterStatementHook [
 	result := instrumentation instrument: methodToInstrument during: [ self sequencialMethod ].
 	
 	self assert: (collector includes: self)
+]
+
+{ #category : 'tests' }
+IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
+	
+	| instrumentation beforeHook afterHook beforeCollector afterCollector result methodToInstrument |
+	
+	beforeCollector := IGCollector collect: [ :instrumentationContext | instrumentationContext variableNamed: 't' ].
+	afterCollector := IGCollector collect: [ :instrumentationContext | instrumentationContext variableNamed: 't' ].
+	
+	beforeHook := IGBeforeStatementHook new do: beforeCollector. 
+	afterHook := IGAfterStatementHook new do: afterCollector.
+	instrumentation := IGInstrumentation new addHook: afterHook; addHook: beforeHook.
+	methodToInstrument := IGTest >> #incrementingTvariable.
+
+	result := instrumentation instrument: methodToInstrument during: [ self incrementingTvariable ].
+	
+	self assert: beforeCollector collection asArray equals: { nil . 0 }.
+	self assert: afterCollector collection asArray equals: { 0 . 1 }
 ]
 
 { #category : 'tests' }

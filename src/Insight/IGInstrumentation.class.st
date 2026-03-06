@@ -17,6 +17,23 @@ IGInstrumentation >> addHook: aHook [
 	hooks add: aHook 
 ]
 
+{ #category : 'as yet unclassified' }
+IGInstrumentation >> generateInstrumentedMethod: method [
+
+	| originalAST instrumentedAST |
+
+	originalAST := method ast.
+	instrumentedAST := originalAST copy.
+	(instrumentedAST allChildren collect: [ :statement | { statement . originalAST childAtPath: (statement treePath) } ])
+		do: [ :nodePair |
+			hooks do: [ :hook | hook instrumentNodePair: nodePair ] ].
+
+	^ method methodClass compiler
+		             ast: instrumentedAST;
+		             doSemanticAnalysis;
+		             compile.
+]
+
 { #category : 'initialization' }
 IGInstrumentation >> initialize [ 
 	
@@ -27,20 +44,8 @@ IGInstrumentation >> initialize [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> instrument: method [
 
-	| instrumentedAST originalAST |
 	oldMethod := method.
-
-	originalAST := method ast.
-
-	instrumentedAST := hooks
-		                   inject: originalAST copy
-		                   into: [ :currAST :hook |
-		                   hook install: currAST original: originalAST ].
-
-	newMethod := method methodClass compiler
-		             ast: instrumentedAST;
-		             doSemanticAnalysis;
-		             compile.
+	newMethod := self generateInstrumentedMethod: method.
 
 	"TODO: refactor me, please"
 	method methodClass methodDict at: newMethod selector put: newMethod

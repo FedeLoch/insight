@@ -21,8 +21,22 @@ IGInstrumentationContext >> astNode: anObject [
 	astNode := anObject
 ]
 
+{ #category : 'break' }
+IGInstrumentationContext >> break [
+
+	^ OCMessageNode
+		  receiver: OCVariableNode selfNode
+		  selector: (OCSelectorNode value: #halt)
+]
+
 { #category : 'accessing' }
 IGInstrumentationContext >> receiver [
 
 	^ OCVariableNode selfNode
+]
+
+{ #category : 'accessing - context' }
+IGInstrumentationContext >> variableNamed: variableName [ 
+
+	^ OCVariableNode named: variableName 
 ]
