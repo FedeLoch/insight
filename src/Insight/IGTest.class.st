@@ -27,13 +27,19 @@ IGTest >> incrementingTvariable [
 ]
 
 { #category : 'tests' }
+IGTest >> returnMethod [
+
+	^ 42
+]
+
+{ #category : 'tests' }
 IGTest >> sequencialMethod [
 
 	1 + 2.
 	
 	3 + 4.
 	
-	self yourself 
+	self yourself
 ]
 
 { #category : 'tests' }
@@ -147,4 +153,19 @@ IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
 	methodToInstrument ast statements do: [ :statement |
 		self assert: (collector includes: statement)
 	]
+]
+
+{ #category : 'tests' }
+IGTest >> testInstrumentAfterReturn [
+	
+	| instrumentation afterHook counter methodToInstrument |
+	
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	methodToInstrument := IGTest >> #returnMethod.
+	
+	instrumentation instrument: methodToInstrument during: [ self returnMethod ].
+	
+	self assert: counter count equals: 1
 ]

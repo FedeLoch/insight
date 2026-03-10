@@ -29,7 +29,7 @@ IGInstrumentation >> generateInstrumentedMethod: method [
 	].
 	
 	pairOfASTNodes do: [ :nodePair | hooks do: [ :hook | hook instrumentNodePair: nodePair ] ].
-
+	
 	^ method methodClass compiler ast: instrumentedAST; doSemanticAnalysis; compile.
 ]
 
