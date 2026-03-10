@@ -29,44 +29,9 @@ IGStatementHook >> do: anAction [
 ]
 
 { #category : 'as yet unclassified' }
-IGStatementHook >> insertHookNode: newNode for: statementNode [
-
-	self subclassResponsibility 
-
-]
-
-{ #category : 'actions' }
-IGStatementHook >> install: ast original: originalAST [
-
-	(ast allStatements collect: [ :statement | { statement . originalAST childAtPath: (statement treePath) } ]) do: [ :pair |
-		self rewrite: pair first original: pair second
-	].
-	
-	^ ast
-]
-
-{ #category : 'actions' }
-IGStatementHook >> instrumentNodePair: nodePair [
-
-	(self acceptsNode: nodePair second) ifFalse: [ ^ self ].
-	
-	self rewrite: nodePair first original: nodePair second
-]
-
-{ #category : 'as yet unclassified' }
 IGStatementHook >> instrumentationNode: originalNode [
 
 	^ action instrumentationNodeFor: (IGInstrumentationContext new astNode: originalNode).
-]
-
-{ #category : 'as yet unclassified' }
-IGStatementHook >> rewrite: statementNode original: originalNode [
-
-	| newNode |
-
-	newNode := self instrumentationNode: originalNode.
-
-	self insertHookNode: newNode for: statementNode
 ]
 
 { #category : 'as yet unclassified' }

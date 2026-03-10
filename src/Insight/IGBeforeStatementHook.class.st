@@ -7,12 +7,6 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-IGBeforeStatementHook >> insertHookNode: newNode for: statementNode [
-
-	statementNode parent replaceNode: statementNode withNodes: { newNode . statementNode }
-]
-
-{ #category : 'as yet unclassified' }
 IGBeforeStatementHook >> rewriteAcceptedNode: node [
 
 	^ { IGInsertBefore with: (self instrumentationNode: node) }

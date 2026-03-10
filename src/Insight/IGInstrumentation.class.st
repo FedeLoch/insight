@@ -20,14 +20,10 @@ IGInstrumentation >> addHook: aHook [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> generateInstrumentedMethod: method [
 
-	| originalAST instrumentedAST pairOfASTNodes rewriteOperationsPerNode |
+	| originalAST instrumentedAST rewriteOperationsPerNode |
 
 	originalAST := method ast.
 	instrumentedAST := originalAST copy.
-	pairOfASTNodes := instrumentedAST allChildren collect:
-		[ :child | { child . originalAST childAtPath: (child treePath) }
-	].
-
 	rewriteOperationsPerNode := IdentityDictionary new.
 
 	instrumentedAST nodesDo: [ :node | | operations |
@@ -43,8 +39,6 @@ IGInstrumentation >> generateInstrumentedMethod: method [
 		]
 	].
 
-	"pairOfASTNodes do: [ :nodePair | hooks do: [ :hook | hook instrumentNodePair: nodePair ] ]."
-	
 	^ method methodClass compiler ast: instrumentedAST; doSemanticAnalysis; compile.
 ]
 
