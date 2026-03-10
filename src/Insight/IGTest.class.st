@@ -77,6 +77,21 @@ IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 ]
 
 { #category : 'tests' }
+IGTest >> testCollectStatementResultsWithAnAfterStatementHook [
+	
+	| instrumentation afterHook collector methodToInstrument |
+	
+	collector := IGCollector collect: [ :instrumentationContext | instrumentationContext statementResult ].
+	afterHook := IGAfterStatementHook new do: collector.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	methodToInstrument := IGTest >> #sequencialMethod.
+	
+	instrumentation instrument: methodToInstrument during: [ self sequencialMethod ].
+	
+	self assertCollection: collector collection asArray equals: { 3 . 7 . self }
+]
+
+{ #category : 'tests' }
 IGTest >> testCounterPerStatement [
 	
 	| instrumentation afterHook counter result methodToInstrument |
@@ -163,6 +178,21 @@ IGTest >> testInstrumentAfterReturn [
 	counter := IGCounter new.
 	afterHook := IGAfterStatementHook new do: counter.
 	instrumentation := IGInstrumentation new addHook: afterHook.
+	methodToInstrument := IGTest >> #returnMethod.
+	
+	instrumentation instrument: methodToInstrument during: [ self returnMethod ].
+	
+	self assert: counter count equals: 1
+]
+
+{ #category : 'tests' }
+IGTest >> testInstrumentBeforeReturn [
+	
+	| instrumentation beforeHook counter methodToInstrument |
+	
+	counter := IGCounter new.
+	beforeHook := IGBeforeStatementHook new do: counter.
+	instrumentation := IGInstrumentation new addHook: beforeHook.
 	methodToInstrument := IGTest >> #returnMethod.
 	
 	instrumentation instrument: methodToInstrument during: [ self returnMethod ].

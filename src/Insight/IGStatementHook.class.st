@@ -54,12 +54,31 @@ IGStatementHook >> instrumentNodePair: nodePair [
 ]
 
 { #category : 'as yet unclassified' }
+IGStatementHook >> instrumentationNode: originalNode [
+
+	^ action instrumentationNodeFor: (IGInstrumentationContext new astNode: originalNode).
+]
+
+{ #category : 'as yet unclassified' }
 IGStatementHook >> rewrite: statementNode original: originalNode [
 
-	| newNode context |
+	| newNode |
 
-	context := IGInstrumentationContext new astNode: originalNode.
-	newNode := action instrumentationNodeFor: context.
+	newNode := self instrumentationNode: originalNode.
 
 	self insertHookNode: newNode for: statementNode
+]
+
+{ #category : 'as yet unclassified' }
+IGStatementHook >> rewriteAcceptedNode: node [
+
+	self subclassResponsibility 
+]
+
+{ #category : 'as yet unclassified' }
+IGStatementHook >> rewriteOperations: node [
+
+	(self acceptsNode: node) ifFalse: [ ^ #() ].
+	
+	^ self rewriteAcceptedNode: node
 ]

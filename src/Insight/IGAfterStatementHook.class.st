@@ -7,11 +7,22 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-IGAfterStatementHook >> insertHookNode: newNode for: statementNode [
+IGAfterStatementHook >> insertHookNode: newNode for: originalStatementNode [
 
-	statementNode isReturn ifTrue: [ ^ self insertHookReturnNode: newNode for: statementNode ].
+	| statementNode variableName |
+	
+	variableName := #______statementResult______.
 
-	statementNode parent replaceNode: statementNode withNodes: { statementNode . newNode }
+	statementNode := OCAssignmentNode variable:
+		(OCVariableNode named: variableName) value: originalStatementNode copy.
+		
+	(originalStatementNode parent temporaryNames includes: variableName) ifFalse: [
+		originalStatementNode parent addTemporaryNamed: variableName
+	].
+
+	originalStatementNode isReturn ifTrue: [ ^ self insertHookReturnNode: newNode for: statementNode ].
+
+	originalStatementNode parent replaceNode: originalStatementNode withNodes: { statementNode . newNode }
 ]
 
 { #category : 'as yet unclassified' }
@@ -25,4 +36,10 @@ IGAfterStatementHook >> insertHookReturnNode: newNode for: returnNode [
 	newReturnNode := OCReturnNode value: temp copy.
 	
 	returnNode parent replaceNode: returnNode withNodes: { assignment . newNode . newReturnNode }
+]
+
+{ #category : 'as yet unclassified' }
+IGAfterStatementHook >> rewriteAcceptedNode: node [
+
+	^ { IGInsertAfter with: (self instrumentationNode: node) }
 ]

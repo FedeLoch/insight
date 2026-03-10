@@ -35,6 +35,12 @@ IGInstrumentationContext >> receiver [
 	^ OCVariableNode selfNode
 ]
 
+{ #category : 'as yet unclassified' }
+IGInstrumentationContext >> statementResult [
+
+	^ OCVariableNode named: #______statementResult______
+]
+
 { #category : 'accessing - context' }
 IGInstrumentationContext >> variableNamed: variableName [ 
 

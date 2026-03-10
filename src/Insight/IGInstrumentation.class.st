@@ -20,15 +20,30 @@ IGInstrumentation >> addHook: aHook [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> generateInstrumentedMethod: method [
 
-	| originalAST instrumentedAST pairOfASTNodes |
+	| originalAST instrumentedAST pairOfASTNodes rewriteOperationsPerNode |
 
 	originalAST := method ast.
 	instrumentedAST := originalAST copy.
 	pairOfASTNodes := instrumentedAST allChildren collect:
 		[ :child | { child . originalAST childAtPath: (child treePath) }
 	].
-	
-	pairOfASTNodes do: [ :nodePair | hooks do: [ :hook | hook instrumentNodePair: nodePair ] ].
+
+	rewriteOperationsPerNode := IdentityDictionary new.
+
+	instrumentedAST nodesDo: [ :node | | operations |
+		operations := rewriteOperationsPerNode at: node ifAbsentPut: [ Set new ].
+		hooks do: [ :hook | operations addAll: (hook rewriteOperations:
+			(originalAST childAtPath: (node treePath)))
+		]
+	].
+
+	instrumentedAST allChildrenPostOrder do: [ :node |
+		(rewriteOperationsPerNode at: node) ifNotEmpty: [
+			:operations | self rewriteNode: node with: operations
+		]
+	].
+
+	"pairOfASTNodes do: [ :nodePair | hooks do: [ :hook | hook instrumentNodePair: nodePair ] ]."
 	
 	^ method methodClass compiler ast: instrumentedAST; doSemanticAnalysis; compile.
 ]
@@ -60,6 +75,17 @@ IGInstrumentation >> instrument: method during: blockToEval [
 	 
 	
 	
+]
+
+{ #category : 'as yet unclassified' }
+IGInstrumentation >> rewriteNode: node with: operations [ 
+
+	| beforeNodes afterNodes |
+	
+	beforeNodes := operations select: #isBeforeAction thenCollect: #instrumentationNode.
+	afterNodes := operations reject: #isBeforeAction thenCollect: #instrumentationNode.
+	
+	node parent replaceNode: node withNodes: beforeNodes asArray, { node copy }, afterNodes asArray.
 ]
 
 { #category : 'as yet unclassified' }
