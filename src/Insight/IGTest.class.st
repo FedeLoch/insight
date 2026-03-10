@@ -7,11 +7,22 @@ Class {
 }
 
 { #category : 'tests' }
+IGTest >> conditionalMethod: aBoolean [
+
+	| t |
+	
+	aBoolean ifTrue: [ t := 1 ] ifFalse: [ t := 2 ].
+	
+	^ t
+]
+
+{ #category : 'tests' }
 IGTest >> incrementingTvariable [
 
 	| t |
 	
 	t := 0.
+
 	t := t + 1
 ]
 
@@ -48,7 +59,7 @@ IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 	beforeCollector := IGCollector collect: [ :instrumentationContext | instrumentationContext variableNamed: 't' ].
 	afterCollector := IGCollector collect: [ :instrumentationContext | instrumentationContext variableNamed: 't' ].
 	
-	beforeHook := IGBeforeStatementHook new do: beforeCollector. 
+	beforeHook := IGBeforeStatementHook new do: beforeCollector.
 	afterHook := IGAfterStatementHook new do: afterCollector.
 	instrumentation := IGInstrumentation new addHook: afterHook; addHook: beforeHook.
 	methodToInstrument := IGTest >> #incrementingTvariable.
@@ -95,6 +106,30 @@ IGTest >> testCounterWithAnAfterStatementHook [
 	result := instrumentation instrument: methodToInstrument during: [ self incrementingTvariable ].
 	
 	self assert: counter count equals: 2.
+]
+
+{ #category : 'tests' }
+IGTest >> testCoverageInstrumentAConditionalWithAnAfterHook [
+	
+	| instrumentation afterHook collector methodToInstrument ifStatement trueStatement falseStatement |
+	
+	collector := IGCounter new countKeyBy: [ :context | context astNode ].
+	afterHook := IGAfterStatementHook new do: collector.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	methodToInstrument := IGTest >> #conditionalMethod:.
+	
+	instrumentation instrument: methodToInstrument during: [
+		self conditionalMethod: true.
+		self conditionalMethod: false
+	].
+
+	ifStatement := methodToInstrument ast statements first.
+	trueStatement := ifStatement arguments first statements first.
+	falseStatement := ifStatement arguments second statements first.
+	
+	self assert: (collector countAt: ifStatement) equals: 2.
+	self assert: (collector countAt: trueStatement) equals: 1.
+	self assert: (collector countAt: falseStatement) equals: 1.
 ]
 
 { #category : 'tests' }

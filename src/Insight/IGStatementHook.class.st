@@ -57,8 +57,8 @@ IGStatementHook >> instrumentNodePair: nodePair [
 IGStatementHook >> rewrite: statementNode original: originalNode [
 
 	| newNode context |
-	context := IGInstrumentationContext new astNode: originalNode.
 
+	context := IGInstrumentationContext new astNode: originalNode.
 	newNode := action instrumentationNodeFor: context.
 
 	self insertHookNode: newNode for: statementNode

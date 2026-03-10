@@ -20,18 +20,17 @@ IGInstrumentation >> addHook: aHook [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> generateInstrumentedMethod: method [
 
-	| originalAST instrumentedAST |
+	| originalAST instrumentedAST pairOfASTNodes |
 
 	originalAST := method ast.
 	instrumentedAST := originalAST copy.
-	(instrumentedAST allChildren collect: [ :statement | { statement . originalAST childAtPath: (statement treePath) } ])
-		do: [ :nodePair |
-			hooks do: [ :hook | hook instrumentNodePair: nodePair ] ].
+	pairOfASTNodes := instrumentedAST allChildren collect:
+		[ :child | { child . originalAST childAtPath: (child treePath) }
+	].
+	
+	pairOfASTNodes do: [ :nodePair | hooks do: [ :hook | hook instrumentNodePair: nodePair ] ].
 
-	^ method methodClass compiler
-		             ast: instrumentedAST;
-		             doSemanticAnalysis;
-		             compile.
+	^ method methodClass compiler ast: instrumentedAST; doSemanticAnalysis; compile.
 ]
 
 { #category : 'initialization' }
