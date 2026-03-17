@@ -5,3 +5,9 @@ Class {
 	#package : 'Insight',
 	#tag : 'Instrumentation'
 }
+
+{ #category : 'testing' }
+IGAddNewTemp >> isAddNewTemp [
+
+	^ true
+]

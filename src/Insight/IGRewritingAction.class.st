@@ -28,6 +28,12 @@ IGRewritingAction >> instrumentationNode: aNode [
 ]
 
 { #category : 'testing' }
+IGRewritingAction >> isAddNewTemp [
+
+	^ false
+]
+
+{ #category : 'testing' }
 IGRewritingAction >> isAfterAction [
 
 	^ false

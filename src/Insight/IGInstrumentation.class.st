@@ -85,12 +85,15 @@ IGInstrumentation >> instrument: method during: blockToEval [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> rewriteNode: node with: operations [ 
 
-	| beforeNodes afterNodes assigmentNode newReturnNode wrapStatements wrappedNode |
+	| beforeNodes afterNodes assigmentNode newReturnNode wrapStatements wrappedNode newTempNodes |
 	wrapStatements := operations select: [ :e | e isWrapStatement ].
 	wrappedNode := wrapStatements ifEmpty: [ node copy ] ifNotEmpty: [ wrapStatements anyOne instrumentationNode ].
 	
+	newTempNodes := operations select: #isAddNewTemp thenCollect: #instrumentationNode.
 	beforeNodes := operations select: #isBeforeAction thenCollect: #instrumentationNode.
 	afterNodes := operations select: #isAfterAction thenCollect: #instrumentationNode.
+	
+	newTempNodes do: [ :e | node parent addTemporaryNamed: e name ]. 
 	
 	node isReturn
 		ifTrue: [
