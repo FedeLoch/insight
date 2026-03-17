@@ -27,3 +27,9 @@ IGGenericReification >> nodeToReify: anOCLiteralValueNode [
 
 	nodeToReify := anOCLiteralValueNode
 ]
+
+{ #category : 'as yet unclassified' }
+IGGenericReification >> rewriteOperationsForNode: anOCMessageNode [
+
+	^ {  }
+]

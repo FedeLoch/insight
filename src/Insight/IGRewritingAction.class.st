@@ -28,7 +28,19 @@ IGRewritingAction >> instrumentationNode: aNode [
 ]
 
 { #category : 'testing' }
+IGRewritingAction >> isAfterAction [
+
+	^ false
+]
+
+{ #category : 'testing' }
 IGRewritingAction >> isBeforeAction [
 
-	self subclassResponsibility 
+	^ false
+]
+
+{ #category : 'testing' }
+IGRewritingAction >> isWrapStatement [
+
+	^ false
 ]

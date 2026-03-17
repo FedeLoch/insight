@@ -18,28 +18,39 @@ IGInstrumentation >> addHook: aHook [
 ]
 
 { #category : 'as yet unclassified' }
-IGInstrumentation >> generateInstrumentedMethod: method [
+IGInstrumentation >> generateInstrumentedAST: method [
 
 	| originalAST instrumentedAST rewriteOperationsPerNode |
-
 	originalAST := method ast.
 	instrumentedAST := originalAST copy.
 	rewriteOperationsPerNode := IdentityDictionary new.
 
-	instrumentedAST nodesDo: [ :node | | operations |
-		operations := rewriteOperationsPerNode at: node ifAbsentPut: [ Set new ].
-		hooks do: [ :hook | operations addAll: (hook rewriteOperations:
-			(originalAST childAtPath: (node treePath)))
-		]
-	].
+	instrumentedAST nodesDo: [ :node |
+			| operations |
+			operations := rewriteOperationsPerNode
+				              at: node
+				              ifAbsentPut: [ Set new ].
+			hooks do: [ :hook |
+					operations addAll:
+						(hook rewriteOperations:
+							 (originalAST childAtPath: node treePath)) ] ].
 
 	instrumentedAST allChildrenPostOrder do: [ :node |
-		(rewriteOperationsPerNode at: node) ifNotEmpty: [
-			:operations | self rewriteNode: node with: operations
-		]
-	].
+			(rewriteOperationsPerNode at: node) ifNotEmpty: [ :operations |
+				self rewriteNode: node with: operations ] ].
+	^ instrumentedAST
+]
 
-	^ method methodClass compiler ast: instrumentedAST; doSemanticAnalysis; compile.
+{ #category : 'as yet unclassified' }
+IGInstrumentation >> generateInstrumentedMethod: method [
+
+	| instrumentedAST |
+	instrumentedAST := self generateInstrumentedAST: method.
+
+	^ method methodClass compiler
+		  ast: instrumentedAST;
+		  doSemanticAnalysis;
+		  compile
 ]
 
 { #category : 'initialization' }
@@ -74,15 +85,18 @@ IGInstrumentation >> instrument: method during: blockToEval [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> rewriteNode: node with: operations [ 
 
-	| beforeNodes afterNodes assigmentNode newReturnNode |
+	| beforeNodes afterNodes assigmentNode newReturnNode wrapStatements wrappedNode |
+	wrapStatements := operations select: [ :e | e isWrapStatement ].
+	wrappedNode := wrapStatements ifEmpty: [ node copy ] ifNotEmpty: [ wrapStatements anyOne instrumentationNode ].
 	
 	beforeNodes := operations select: #isBeforeAction thenCollect: #instrumentationNode.
-	afterNodes := operations reject: #isBeforeAction thenCollect: #instrumentationNode.
+	afterNodes := operations select: #isAfterAction thenCollect: #instrumentationNode.
 	
 	node isReturn
-		ifTrue: [ 
+		ifTrue: [
+			wrappedNode := wrappedNode value.
 			node parent addTemporaryNamed: 'returnVal'.
-			assigmentNode := OCAssignmentNode variable: (OCVariableNode named:'returnVal') value: node value.
+			assigmentNode := OCAssignmentNode variable: (OCVariableNode named:'returnVal') value: wrappedNode.
 			newReturnNode := OCReturnNode value: (OCVariableNode named:'returnVal').
 			node parent
 				replaceNode: node
@@ -90,7 +104,8 @@ IGInstrumentation >> rewriteNode: node with: operations [
 			 ]
 		ifFalse: [ node parent
 			replaceNode: node
-			withNodes: beforeNodes asArray, { node copy }, afterNodes asArray ]
+			withNodes: beforeNodes asArray, { wrappedNode }, afterNodes asArray 
+			]
 ]
 
 { #category : 'as yet unclassified' }

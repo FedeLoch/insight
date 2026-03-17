@@ -9,5 +9,5 @@ Class {
 { #category : 'as yet unclassified' }
 IGAfterStatementHook >> rewriteAcceptedNode: node [
 
-	^ { IGInsertAfter with: (self instrumentationNode: node) }
+	^ action rewriteOperationsAfterNode: node
 ]

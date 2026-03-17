@@ -61,10 +61,16 @@ IGCounter >> initialize [
 IGCounter >> instrumentationNodeFor: context [
 
 	| reification |
-	reification := keyBlock value: context.
+	reification := self reificationForContext: context.
 
 	^ OCMessageNode
 		  receiver: (OCLiteralValueNode value: self)
 		  selector: (OCSelectorNode value: #incrementAt:)
 		  arguments: { reification nodeToReify }
+]
+
+{ #category : 'as yet unclassified' }
+IGCounter >> reificationForContext: context [
+
+	^ keyBlock value: context
 ]

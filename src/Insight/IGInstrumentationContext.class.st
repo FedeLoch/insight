@@ -38,7 +38,7 @@ IGInstrumentationContext >> receiver [
 { #category : 'as yet unclassified' }
 IGInstrumentationContext >> statementResult [
 
-	^ OCVariableNode named: #______statementResult______
+	^ IGStatementResultReification new
 ]
 
 { #category : 'accessing - context' }

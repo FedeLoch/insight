@@ -1,5 +1,5 @@
 Class {
-	#name : 'IGInsertAfter',
+	#name : 'IGWrapStatement',
 	#superclass : 'IGRewritingAction',
 	#category : 'Insight-Instrumentation',
 	#package : 'Insight',
@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'testing' }
-IGInsertAfter >> isAfterAction [
+IGWrapStatement >> isWrapStatement [
 
 	^ true
 ]
