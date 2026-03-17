@@ -14,7 +14,7 @@ Class {
 { #category : 'initialization' }
 IGCounter >> allKey [
 
-	^ allKey
+	^ IGGenericReification value: allKey
 ]
 
 { #category : 'as yet unclassified' }
@@ -60,8 +60,11 @@ IGCounter >> initialize [
 { #category : 'as yet unclassified' }
 IGCounter >> instrumentationNodeFor: context [
 
+	| reification |
+	reification := keyBlock value: context.
+
 	^ OCMessageNode
 		  receiver: (OCLiteralValueNode value: self)
 		  selector: (OCSelectorNode value: #incrementAt:)
-			arguments: { keyBlock value: context }
+		  arguments: { reification nodeToReify }
 ]

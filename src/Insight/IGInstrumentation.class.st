@@ -74,12 +74,23 @@ IGInstrumentation >> instrument: method during: blockToEval [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> rewriteNode: node with: operations [ 
 
-	| beforeNodes afterNodes |
+	| beforeNodes afterNodes assigmentNode newReturnNode |
 	
 	beforeNodes := operations select: #isBeforeAction thenCollect: #instrumentationNode.
 	afterNodes := operations reject: #isBeforeAction thenCollect: #instrumentationNode.
 	
-	node parent replaceNode: node withNodes: beforeNodes asArray, { node copy }, afterNodes asArray.
+	node isReturn
+		ifTrue: [ 
+			node parent addTemporaryNamed: 'returnVal'.
+			assigmentNode := OCAssignmentNode variable: (OCVariableNode named:'returnVal') value: node value.
+			newReturnNode := OCReturnNode value: (OCVariableNode named:'returnVal').
+			node parent
+				replaceNode: node
+				withNodes: beforeNodes asArray, { assigmentNode } , afterNodes asArray , { newReturnNode } 
+			 ]
+		ifFalse: [ node parent
+			replaceNode: node
+			withNodes: beforeNodes asArray, { node copy }, afterNodes asArray ]
 ]
 
 { #category : 'as yet unclassified' }

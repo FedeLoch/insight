@@ -51,10 +51,12 @@ IGCollector >> initialize [
 { #category : 'as yet unclassified' }
 IGCollector >> instrumentationNodeFor: context [
 
+	| reification |
+	reification := collectionProperty value: context.
 	^ OCMessageNode
 		  receiver: (OCLiteralNode value: self)
 		  selector: #value:
-		  arguments: { (collectionProperty value: context) }
+		  arguments: { reification nodeToReify }
 ]
 
 { #category : 'accessing' }

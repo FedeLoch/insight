@@ -12,7 +12,7 @@ Class {
 { #category : 'accessing' }
 IGInstrumentationContext >> astNode [
 
-	^ OCLiteralNode value: astNode
+	^ IGGenericReification value: (OCLiteralNode value: astNode)
 ]
 
 { #category : 'accessing' }
@@ -24,15 +24,15 @@ IGInstrumentationContext >> astNode: anObject [
 { #category : 'break' }
 IGInstrumentationContext >> break [
 
-	^ OCMessageNode
-		  receiver: OCVariableNode selfNode
-		  selector: (OCSelectorNode value: #halt)
+	^ IGGenericReification value: (OCMessageNode
+			   receiver: OCVariableNode selfNode
+			   selector: (OCSelectorNode value: #halt))
 ]
 
 { #category : 'accessing' }
 IGInstrumentationContext >> receiver [
 
-	^ OCVariableNode selfNode
+	^ IGGenericReification value: OCVariableNode selfNode
 ]
 
 { #category : 'as yet unclassified' }
@@ -42,7 +42,7 @@ IGInstrumentationContext >> statementResult [
 ]
 
 { #category : 'accessing - context' }
-IGInstrumentationContext >> variableNamed: variableName [ 
+IGInstrumentationContext >> variableNamed: variableName [
 
-	^ OCVariableNode named: variableName 
+	^ IGGenericReification value: (OCVariableNode named: variableName)
 ]
