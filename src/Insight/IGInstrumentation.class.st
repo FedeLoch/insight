@@ -71,7 +71,7 @@ IGInstrumentation >> instrument: method [
 ]
 
 { #category : 'as yet unclassified' }
-IGInstrumentation >> instrument: method during: blockToEval [
+IGInstrumentation >> instrumentMethod: method during: blockToEval [
 
 	self instrument: method.
 	

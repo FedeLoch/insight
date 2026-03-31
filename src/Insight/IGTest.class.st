@@ -6,7 +6,7 @@ Class {
 	#tag : 'Tests'
 }
 
-{ #category : 'tests' }
+{ #category : 'helper methods' }
 IGTest >> conditionalMethod: aBoolean [
 
 	| t |
@@ -16,7 +16,7 @@ IGTest >> conditionalMethod: aBoolean [
 	^ t
 ]
 
-{ #category : 'tests' }
+{ #category : 'helper methods' }
 IGTest >> incrementingTvariable [
 
 	| t |
@@ -26,13 +26,13 @@ IGTest >> incrementingTvariable [
 	t := t + 1
 ]
 
-{ #category : 'tests' }
+{ #category : 'helper methods' }
 IGTest >> returnMethod [
 
 	^ 42
 ]
 
-{ #category : 'tests' }
+{ #category : 'helper methods' }
 IGTest >> sequencialMethod [
 
 	1 + 2.
@@ -52,7 +52,7 @@ IGTest >> testCollectArbitraryValueWithAnAfterStatementHook [
 	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #sequencialMethod.
 	
-	result := instrumentation instrument: methodToInstrument during: [ self sequencialMethod ].
+	result := instrumentation instrumentMethod: methodToInstrument during: [ self sequencialMethod ].
 	
 	self assert: (collector includes: self)
 ]
@@ -70,7 +70,7 @@ IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 	instrumentation := IGInstrumentation new addHook: afterHook; addHook: beforeHook.
 	methodToInstrument := IGTest >> #incrementingTvariable.
 
-	result := instrumentation instrument: methodToInstrument during: [ self incrementingTvariable ].
+	result := instrumentation instrumentMethod: methodToInstrument during: [ self incrementingTvariable ].
 	
 	self assert: beforeCollector collection asArray equals: { nil . 0 }.
 	self assert: afterCollector collection asArray equals: { 0 . 1 }
@@ -86,7 +86,7 @@ IGTest >> testCollectStatementResultsWithAnAfterStatementHook [
 	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #sequencialMethod.
 	
-	instrumentation instrument: methodToInstrument during: [ self sequencialMethod ].
+	instrumentation instrumentMethod: methodToInstrument during: [ self sequencialMethod ].
 	
 	self assertCollection: collector collection asArray equals: { 3 . 7 . self }
 ]
@@ -105,7 +105,7 @@ IGTest >> testCounterPerStatement [
 		self assert: (counter countAt: node) equals: 0		
 	].
 
-	result := instrumentation instrument: methodToInstrument during: [ self incrementingTvariable ].
+	result := instrumentation instrumentMethod: methodToInstrument during: [ self incrementingTvariable ].
 	
 	methodToInstrument ast statements do: [ :node |
 		self assert: (counter countAt: node) equals: 1		
@@ -124,7 +124,7 @@ IGTest >> testCounterWithAnAfterStatementHook [
 
 	self assert: counter count equals: 0.
 
-	result := instrumentation instrument: methodToInstrument during: [ self incrementingTvariable ].
+	result := instrumentation instrumentMethod: methodToInstrument during: [ self incrementingTvariable ].
 	
 	self assert: counter count equals: 2.
 ]
@@ -139,7 +139,7 @@ IGTest >> testCoverageInstrumentAConditionalWithAnAfterHook [
 	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #conditionalMethod:.
 	
-	instrumentation instrument: methodToInstrument during: [
+	instrumentation instrumentMethod: methodToInstrument during: [
 		self conditionalMethod: true.
 		self conditionalMethod: false
 	].
@@ -163,7 +163,7 @@ IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
 	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #sequencialMethod.
 	
-	result := instrumentation instrument: methodToInstrument during: [ self sequencialMethod ].
+	result := instrumentation instrumentMethod: methodToInstrument during: [ self sequencialMethod ].
 	
 	methodToInstrument ast statements do: [ :statement |
 		self assert: (collector includes: statement)
@@ -180,7 +180,7 @@ IGTest >> testInstrumentAfterReturn [
 	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #returnMethod.
 	
-	instrumentation instrument: methodToInstrument during: [ self returnMethod ].
+	instrumentation instrumentMethod: methodToInstrument during: [ self returnMethod ].
 	
 	self assert: counter count equals: 1
 ]
@@ -195,7 +195,7 @@ IGTest >> testInstrumentBeforeReturn [
 	instrumentation := IGInstrumentation new addHook: beforeHook.
 	methodToInstrument := IGTest >> #returnMethod.
 	
-	instrumentation instrument: methodToInstrument during: [ self returnMethod ].
+	instrumentation instrumentMethod: methodToInstrument during: [ self returnMethod ].
 	
 	self assert: counter count equals: 1
 ]
