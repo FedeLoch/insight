@@ -19,6 +19,7 @@ IGGenericReification class >> value: anOCLiteralValueNode [
 
 { #category : 'accessing' }
 IGGenericReification >> nodeToReify [
+
 	^ nodeToReify
 ]
 

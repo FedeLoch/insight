@@ -22,8 +22,24 @@ IGAction >> reificationForContext: context [
 IGAction >> rewriteOperationsAfterNode: node [
 
 	| instrumentationNode reification instrumentationContext |
-	instrumentationContext := (IGInstrumentationContext new astNode: node).
+	
+	instrumentationContext := IGInstrumentationContext new astNode: node.
 	instrumentationNode := self instrumentationNodeFor: instrumentationContext.
+	
 	reification := self reificationForContext: instrumentationContext.
+	
+	^ { IGInsertAfter with: instrumentationNode } , (reification rewriteOperationsForNode: node)
+]
+
+{ #category : 'as yet unclassified' }
+IGAction >> rewriteOperationsAssignmentAfterNode: node [
+
+	| instrumentationNode reification instrumentationContext |
+	
+	instrumentationContext := IGInstrumentationContext new astNode: node.
+	instrumentationNode := self instrumentationNodeFor: instrumentationContext.
+	
+	reification := self reificationForContext: instrumentationContext.
+	
 	^ { IGInsertAfter with: instrumentationNode } , (reification rewriteOperationsForNode: node)
 ]

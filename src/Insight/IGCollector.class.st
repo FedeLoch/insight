@@ -53,6 +53,7 @@ IGCollector >> instrumentationNodeFor: context [
 
 	| reification |
 	reification := self reificationForContext: context.
+	
 	^ OCMessageNode
 		  receiver: (OCLiteralNode value: self)
 		  selector: #value:

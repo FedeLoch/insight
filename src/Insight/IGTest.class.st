@@ -92,6 +92,41 @@ IGTest >> testCollectStatementResultsWithAnAfterStatementHook [
 ]
 
 { #category : 'class tests' }
+IGTest >> testCountAllAssignmentsCallingOnlyOneAssignmentInAClass [
+
+	| instrumentation afterHook counter |
+	
+	counter := IGCounter new.
+	afterHook := IGAfterAssignmentHook new do: counter.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	
+	instrumentation instrumentClass: IGMock during: [ | instance |
+		instance := IGMock basicNew.
+		instance variable2: 'hola'.
+	].
+	
+	self assert: (counter count) equals: 1
+]
+
+{ #category : 'class tests' }
+IGTest >> testCountAllAssignmentsInAClass [
+
+	| instrumentation afterHook counter |
+	
+	counter := IGCounter new.
+	afterHook := IGAfterAssignmentHook new do: counter.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	
+	instrumentation instrumentClass: IGMock during: [ | instance |
+		instance := IGMock new.
+		instance variable1: 42.
+		instance variable2: 'hola'.
+	].
+	
+	self assert: (counter count) equals: 5
+]
+
+{ #category : 'class tests' }
 IGTest >> testCountAllStatementExecutionsInAClass [
 	
 	| instrumentation afterHook counter |

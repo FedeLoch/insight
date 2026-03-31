@@ -114,11 +114,16 @@ IGInstrumentation >> rewriteNode: node with: operations [
 			node parent
 				replaceNode: node
 				withNodes: beforeNodes asArray, { assigmentNode } , afterNodes asArray , { newReturnNode } 
-			 ]
-		ifFalse: [ node parent
-			replaceNode: node
+			 ].
+
+"		node isAssignment ifTrue: [
+			node parent replaceNode: node
 			withNodes: beforeNodes asArray, { wrappedNode }, afterNodes asArray 
-			]
+		].
+		"
+		"Default case"
+		node parent replaceNode: node
+			withNodes: beforeNodes asArray, { wrappedNode }, afterNodes asArray 
 ]
 
 { #category : 'as yet unclassified' }
