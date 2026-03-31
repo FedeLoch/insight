@@ -61,7 +61,17 @@ IGInstrumentation >> initialize [
 ]
 
 { #category : 'as yet unclassified' }
-IGInstrumentation >> instrument: method [
+IGInstrumentation >> instrumentClass: aClass during: blockToEval [
+ 
+	aClass localMethods do: [ :method | self instrumentMethod: method ].
+
+	^ blockToEval ensure: [
+		aClass localMethods do: [ :method | self uninstrumentMethod: method ]
+	].
+]
+
+{ #category : 'as yet unclassified' }
+IGInstrumentation >> instrumentMethod: method [
 
 	oldMethod := method.
 	newMethod := self generateInstrumentedMethod: method.
@@ -73,9 +83,9 @@ IGInstrumentation >> instrument: method [
 { #category : 'as yet unclassified' }
 IGInstrumentation >> instrumentMethod: method during: blockToEval [
 
-	self instrument: method.
+	self instrumentMethod: method.
 	
-	^ blockToEval ensure: [ self uninstrument: method ].
+	^ blockToEval ensure: [ self uninstrumentMethod: method ].
 	
 	 
 	
@@ -112,7 +122,7 @@ IGInstrumentation >> rewriteNode: node with: operations [
 ]
 
 { #category : 'as yet unclassified' }
-IGInstrumentation >> uninstrument: method [
+IGInstrumentation >> uninstrumentMethod: method [
 
 	method methodClass methodDict at: method selector put: method
 ]

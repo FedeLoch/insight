@@ -42,7 +42,7 @@ IGTest >> sequencialMethod [
 	self yourself
 ]
 
-{ #category : 'tests' }
+{ #category : 'method tests' }
 IGTest >> testCollectArbitraryValueWithAnAfterStatementHook [
 	
 	| instrumentation afterHook collector result methodToInstrument |
@@ -57,7 +57,7 @@ IGTest >> testCollectArbitraryValueWithAnAfterStatementHook [
 	self assert: (collector includes: self)
 ]
 
-{ #category : 'tests' }
+{ #category : 'method tests' }
 IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 	
 	| instrumentation beforeHook afterHook beforeCollector afterCollector result methodToInstrument |
@@ -76,7 +76,7 @@ IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 	self assert: afterCollector collection asArray equals: { 0 . 1 }
 ]
 
-{ #category : 'tests' }
+{ #category : 'method tests' }
 IGTest >> testCollectStatementResultsWithAnAfterStatementHook [
 	
 	| instrumentation afterHook collector methodToInstrument |
@@ -91,7 +91,25 @@ IGTest >> testCollectStatementResultsWithAnAfterStatementHook [
 	self assertCollection: collector collection asArray equals: { 3 . 7 . self }
 ]
 
-{ #category : 'tests' }
+{ #category : 'class tests' }
+IGTest >> testCountAllStatementExecutionsInAClass [
+	
+	| instrumentation afterHook counter |
+	
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	
+	instrumentation instrumentClass: IGMock during: [ | instance |
+		instance := IGMock new.
+		instance variable1: 42.
+		instance variable2: 'hola'.
+	].
+	
+	self assert: (counter count) equals: 5
+]
+
+{ #category : 'method tests' }
 IGTest >> testCounterPerStatement [
 	
 	| instrumentation afterHook counter result methodToInstrument |
@@ -112,7 +130,7 @@ IGTest >> testCounterPerStatement [
 	].
 ]
 
-{ #category : 'tests' }
+{ #category : 'method tests' }
 IGTest >> testCounterWithAnAfterStatementHook [
 	
 	| instrumentation afterHook counter result methodToInstrument |
@@ -129,7 +147,7 @@ IGTest >> testCounterWithAnAfterStatementHook [
 	self assert: counter count equals: 2.
 ]
 
-{ #category : 'tests' }
+{ #category : 'method tests' }
 IGTest >> testCoverageInstrumentAConditionalWithAnAfterHook [
 	
 	| instrumentation afterHook collector methodToInstrument ifStatement trueStatement falseStatement |
@@ -153,7 +171,7 @@ IGTest >> testCoverageInstrumentAConditionalWithAnAfterHook [
 	self assert: (collector countAt: falseStatement) equals: 1.
 ]
 
-{ #category : 'tests' }
+{ #category : 'method tests' }
 IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
 	
 	| instrumentation afterHook collector result methodToInstrument |
@@ -170,7 +188,7 @@ IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
 	]
 ]
 
-{ #category : 'tests' }
+{ #category : 'method tests' }
 IGTest >> testInstrumentAfterReturn [
 	
 	| instrumentation afterHook counter methodToInstrument |
@@ -185,7 +203,7 @@ IGTest >> testInstrumentAfterReturn [
 	self assert: counter count equals: 1
 ]
 
-{ #category : 'tests' }
+{ #category : 'method tests' }
 IGTest >> testInstrumentBeforeReturn [
 	
 	| instrumentation beforeHook counter methodToInstrument |
