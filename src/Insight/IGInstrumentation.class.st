@@ -143,24 +143,6 @@ IGInstrumentation >> rewriteNode: node with: operations [
 ]
 
 { #category : 'as yet unclassified' }
-IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNodes [
-
-	| assigmentNode newReturnNode wrappedNode |
-	wrappedNode := wrappedNode value.
-	node parent addTemporaryNamed: 'returnVal'.
-	assigmentNode := OCAssignmentNode
-		                 variable: (OCVariableNode named: 'returnVal')
-		                 value: wrappedNode.
-	newReturnNode := OCReturnNode value:
-		                 (OCVariableNode named: 'returnVal').
-	^ node parent
-		  replaceNode: node
-		  withNodes:
-			  beforeNodes asArray , { assigmentNode } , afterNodes asArray
-			  , { newReturnNode }
-]
-
-{ #category : 'as yet unclassified' }
 IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNodes wrapped: wrappedNode [
 
 	| assigmentNode newReturnNode returnValueNode |

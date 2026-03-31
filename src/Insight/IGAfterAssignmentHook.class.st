@@ -1,16 +1,10 @@
 Class {
 	#name : 'IGAfterAssignmentHook',
-	#superclass : 'IGStatementHook',
+	#superclass : 'IGAssignmentHook',
 	#category : 'Insight-Hooks',
 	#package : 'Insight',
 	#tag : 'Hooks'
 }
-
-{ #category : 'actions' }
-IGAfterAssignmentHook >> acceptsNode: node [
-
-	^ node isAssignment and: [ node parent isSequence ]
-]
 
 { #category : 'as yet unclassified' }
 IGAfterAssignmentHook >> rewriteAcceptedNode: node [
