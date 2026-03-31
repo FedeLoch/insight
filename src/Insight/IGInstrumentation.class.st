@@ -93,37 +93,90 @@ IGInstrumentation >> instrumentMethod: method during: blockToEval [
 ]
 
 { #category : 'as yet unclassified' }
-IGInstrumentation >> rewriteNode: node with: operations [ 
+IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNodes wrapped: wrappedNode [
 
-	| beforeNodes afterNodes assigmentNode newReturnNode wrapStatements wrappedNode newTempNodes |
+	| newNodes |
+	newNodes := wrappedNode igAssignmentNodes flatCollect: [ :assignment |
+		            beforeNodes asArray , { assignment }
+		            , afterNodes asArray ].
+	^ node parent replaceNode: node withNodes: newNodes
+]
+
+{ #category : 'as yet unclassified' }
+IGInstrumentation >> rewriteNode: node with: operations [
+
+	| beforeNodes afterNodes wrapStatements wrappedNode newTempNodes |
 	wrapStatements := operations select: [ :e | e isWrapStatement ].
-	wrappedNode := wrapStatements ifEmpty: [ node copy ] ifNotEmpty: [ wrapStatements anyOne instrumentationNode ].
-	
-	newTempNodes := operations select: #isAddNewTemp thenCollect: #instrumentationNode.
-	beforeNodes := operations select: #isBeforeAction thenCollect: #instrumentationNode.
-	afterNodes := operations select: #isAfterAction thenCollect: #instrumentationNode.
-	
-	newTempNodes do: [ :e | node parent addTemporaryNamed: e name ]. 
-	
-	node isReturn
-		ifTrue: [
-			wrappedNode := wrappedNode value.
-			node parent addTemporaryNamed: 'returnVal'.
-			assigmentNode := OCAssignmentNode variable: (OCVariableNode named:'returnVal') value: wrappedNode.
-			newReturnNode := OCReturnNode value: (OCVariableNode named:'returnVal').
-			node parent
-				replaceNode: node
-				withNodes: beforeNodes asArray, { assigmentNode } , afterNodes asArray , { newReturnNode } 
-			 ].
+	wrappedNode := wrapStatements
+		               ifEmpty: [ node copy ]
+		               ifNotEmpty: [
+		               wrapStatements anyOne instrumentationNode ].
 
-"		node isAssignment ifTrue: [
-			node parent replaceNode: node
-			withNodes: beforeNodes asArray, { wrappedNode }, afterNodes asArray 
-		].
-		"
-		"Default case"
-		node parent replaceNode: node
-			withNodes: beforeNodes asArray, { wrappedNode }, afterNodes asArray 
+	newTempNodes := operations
+		                select: #isAddNewTemp
+		                thenCollect: #instrumentationNode.
+	beforeNodes := operations
+		               select: #isBeforeAction
+		               thenCollect: #instrumentationNode.
+	afterNodes := operations
+		              select: #isAfterAction
+		              thenCollect: #instrumentationNode.
+
+	newTempNodes do: [ :e | node parent addTemporaryNamed: e name ].
+
+	node isReturn ifTrue: [
+		self rewriteReturnNode: node before: beforeNodes after: afterNodes wrapped: wrappedNode.
+		"RETURNING"
+		^ self
+	].
+
+	"Assignment case"
+	node isAssignment ifTrue: [
+		self rewriteAssignment: node before: beforeNodes after: afterNodes wrapped: wrappedNode.
+		"RETURNING"
+		^ self
+	].
+
+	"Default case"
+	node parent replaceNode: node withNodes:
+		beforeNodes asArray , { wrappedNode } , afterNodes asArray
+]
+
+{ #category : 'as yet unclassified' }
+IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNodes [
+
+	| assigmentNode newReturnNode wrappedNode |
+	wrappedNode := wrappedNode value.
+	node parent addTemporaryNamed: 'returnVal'.
+	assigmentNode := OCAssignmentNode
+		                 variable: (OCVariableNode named: 'returnVal')
+		                 value: wrappedNode.
+	newReturnNode := OCReturnNode value:
+		                 (OCVariableNode named: 'returnVal').
+	^ node parent
+		  replaceNode: node
+		  withNodes:
+			  beforeNodes asArray , { assigmentNode } , afterNodes asArray
+			  , { newReturnNode }
+]
+
+{ #category : 'as yet unclassified' }
+IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNodes wrapped: wrappedNode [
+
+	| assigmentNode newReturnNode returnValueNode |
+	
+	returnValueNode := wrappedNode value.
+	node parent addTemporaryNamed: 'returnVal'.
+	assigmentNode := OCAssignmentNode
+		                 variable: (OCVariableNode named: 'returnVal')
+		                 value: returnValueNode.
+	newReturnNode := OCReturnNode value:
+		                 (OCVariableNode named: 'returnVal').
+	^ node parent
+		  replaceNode: node
+		  withNodes:
+			  beforeNodes asArray , { assigmentNode } , afterNodes asArray
+			  , { newReturnNode }
 ]
 
 { #category : 'as yet unclassified' }

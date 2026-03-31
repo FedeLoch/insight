@@ -15,5 +15,5 @@ IGAfterAssignmentHook >> acceptsNode: node [
 { #category : 'as yet unclassified' }
 IGAfterAssignmentHook >> rewriteAcceptedNode: node [
 
-	^ action rewriteOperationsAssignmentAfterNode: node
+	^ action rewriteOperationsAfterNode: node
 ]
