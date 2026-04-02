@@ -1,0 +1,145 @@
+@startuml Insight - Container Diagram
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Insight - Runtime Instrumentation Framework for Pharo Smalltalk
+
+System_Boundary(insight, "Insight") {
+    Container(api, "IGInstrumentation", "Pharo Object", "Entry point. instrumentMethod:during: / instrumentClass:during:")
+    Container(hookSystem, "Hook System", "Pharo Objects", "Filters AST nodes and produces rewriting operations.")
+    Container(actionSystem, "Action System", "Pharo Objects", "Defines what is observed at runtime. IGAction subclasses build the code to be injected.")
+    Container(contextSystem, "Context & Reification", "Pharo Objects", "Provides runtime values to actions. IGInstrumentationContext, IGGenericReification, IGStatementResultReification.")
+    Container(rewritingEngine, "AST Rewriting Engine", "Pharo Objects", "Applies structural transformations to the AST copy before recompilation. IGRewritingAction subclasses.")
+}
+
+System_Ext(ocCompiler, "OC Compiler (Pharo)", "Parses & compiles Smalltalk source. Provides the AST node hierarchy extended by Insight.")
+
+Rel_Down(api, hookSystem, "iterates hooks for each AST node")
+Rel_Down(api, rewritingEngine, "applies collected rewriting operations")
+Rel_Right(hookSystem, actionSystem, "asks action for instrumentation node")
+Rel_Right(actionSystem, contextSystem, "uses context & reification to build injected code")
+Rel_Down(contextSystem, rewritingEngine, "may produce WrapStatement + AddNewTemp ops")
+Rel_Down(api, ocCompiler, "compiles modified AST & replaces method")
+Rel_Up(ocCompiler, api, "provides original AST (copy)")
+
+SHOW_LEGEND()
+
+@enduml
+
+
+@startuml Insight - Component Diagram
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Insight - Component Detail
+
+package "Hook System  [Insight-Hooks]" {
+    Component(statementHook, "IGHook", "Abstract", "Base hook. acceptsNode: filters nodes. rewriteOperations: generates ops list.")
+    Component(beforeHook, "IGBeforeStatementHook", "Concrete", "Inserts instrumentation node before the matched statement.")
+    Component(afterHook, "IGAfterStatementHook", "Concrete", "Inserts instrumentation node after the matched statement.")
+    Component(assignmentHook, "IGAfterAssignmentHook", "Concrete", "Inserts instrumentation node after an assignment statement. Flattens nested assignments to ensure hooks fire on each assignment in the chain.")
+}
+
+package "Action System  [Insight-Instrumentation Action]" {
+    Component(action, "IGAction", "Abstract", "Base for observable actions. Builds the Smalltalk send node injected into the instrumented AST.")
+    Component(counter, "IGCounter", "Concrete", "Counts node executions. Stores count per key in a Dictionary. countKeyBy: block for custom grouping.")
+    Component(collector, "IGCollector", "Concrete", "Gathers runtime values in an OrderedCollection. collectionProperty: block defines what to collect.")
+}
+
+package "Context & Reification  [Insight-Context]" {
+    Component(igContext, "IGInstrumentationContext", "Facade", "Provides handles to runtime values: astNode, receiver, variableNamed:, statementResult.")
+    Component(genReif, "IGGenericReification", "Wrapper", "Wraps an arbitrary value as an OC literal node for code injection.")
+    Component(stmtReif, "IGStatementResultReification", "Wrapper", "Captures the return value of a statement. Produces WrapStatement + AddNewTemp ops.")
+}
+
+package "AST Rewriting Engine  [Insight-Instrumentation]" {
+    Component(instrumentation, "IGInstrumentation", "Orchestrator", "Main engine. generateInstrumentedAST:")
+    Component(insertBefore, "IGInsertBefore", "Operation marker", "Marks code to be inserted before a statement.")
+    Component(insertAfter, "IGInsertAfter", "Operation marker", "Marks code to be inserted after a statement.")
+    Component(wrapStatement, "IGWrapStatement", "Operation marker", "Marks a statement to be wrapped in an assignment.")
+    Component(addNewTemp, "IGAddNewTemp", "Operation marker", "Marks a temp variable to be added to the method body.")
+}
+
+package "OC Compiler Extensions  [Extensions]" {
+    Component(ocNode, "OCNode", "Extension", "igAssignmentNodes: flattens nested assignment chains.")
+    Component(ocProgNode, "OCProgramNode", "Extension", "childAtPath: / treePath / treePathUpTo: - path-based AST navigation.")
+    Component(ocAssignNode, "OCAssignmentNode", "Extension", "igAssignmentNodes: chain-aware variant.")
+}
+
+Rel(beforeHook, statementHook, "extends")
+Rel(afterHook, statementHook, "extends")
+Rel(assignmentHook, statementHook, "extends")
+Rel(counter, action, "extends")
+Rel(collector, action, "extends")
+
+Rel(statementHook, action, "holds 1 / calls instrumentationNodeFor:")
+Rel(action, igContext, "asks for reification")
+Rel(igContext, genReif, "creates")
+Rel(igContext, stmtReif, "creates for statementResult")
+Rel(stmtReif, wrapStatement, "produces")
+Rel(stmtReif, addNewTemp, "produces")
+Rel(statementHook, insertBefore, "may produce")
+Rel(statementHook, insertAfter, "may produce")
+Rel(instrumentation, statementHook, "iterates hooks for every AST node")
+Rel(instrumentation, insertBefore, "applies")
+Rel(instrumentation, insertAfter, "applies")
+Rel(instrumentation, wrapStatement, "applies")
+Rel(instrumentation, addNewTemp, "applies")
+Rel(instrumentation, ocProgNode, "uses for AST traversal")
+Rel(instrumentation, ocNode, "uses for assignment flattening")
+Rel(assignmentHook, ocAssignNode, "uses for assignment flattening")
+
+SHOW_LEGEND()
+
+@enduml
+
+
+@startuml Insight - Instrumentation Pipeline
+
+title Insight - Instrumentation Pipeline
+
+participant "User / Test" as user
+participant "IGInstrumentation" as eng
+participant "OC Compiler" as oc
+participant "IGHook" as hook
+participant "IGAction" as act
+participant "Pharo Runtime\n(methodDict)" as rt
+
+user -> eng : instrumentSourceCode: sc during: block
+activate eng
+
+eng -> oc : parse: sc sourceCode
+oc --> eng : AST (copy)
+
+loop for each AST node (pre-order)
+    eng -> hook : rewriteOperations: node
+    activate hook
+    hook -> hook : acceptsNode: node
+    alt node accepted
+        hook -> act : instrumentationNodeFor: node context: ctx
+        act --> hook : injectedSendNode
+        hook --> eng : IGRewritingOperation(s) (e.g. InsertBefore(injectedSendNode))
+    else node rejected
+        hook --> eng : []
+    end
+    deactivate hook
+end
+
+note over eng : apply operations post-order\n(deepest nodes first)
+
+eng -> oc : compileMethod: modifiedAST
+oc --> eng : compiledMethod
+
+eng -> rt : methodDict at: #selector put: compiledMethod
+note right of rt : original method saved
+
+eng -> user : execute block
+activate user
+user -> rt : send instrumented message(s)
+rt -> act : increment / collect
+deactivate user
+
+eng -> rt : restore original method (ensure:)
+deactivate eng
+
+@enduml
