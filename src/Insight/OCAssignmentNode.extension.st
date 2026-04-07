@@ -7,8 +7,3 @@ OCAssignmentNode >> isStatement [
 	
 	^ parent isStatement not
 ]
-
-OCAssignmentNode >> igAssignmentNodes [
-
-	^ (self children flatCollect: #igAssignmentNodes), { self }
-]

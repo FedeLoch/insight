@@ -13,6 +13,12 @@ OCProgramNode >> childAtPath: aPath [
 ]
 
 { #category : '*Insight' }
+OCProgramNode >> isStatement [
+
+	^ self parent notNil and: [ self parent isSequence ]
+]
+
+{ #category : '*Insight' }
 OCProgramNode >> treePath [
 
     "Return the index path to get to self from the method node.

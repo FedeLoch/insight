@@ -21,23 +21,22 @@ IGInstrumentation >> addHook: aHook [
 IGInstrumentation >> generateInstrumentedAST: method [
 
 	| originalAST instrumentedAST rewriteOperationsPerNode |
-	originalAST := method ast.
-	instrumentedAST := originalAST copy.
-	rewriteOperationsPerNode := IdentityDictionary new.
 
-	instrumentedAST nodesDo: [ :node |
-			| operations |
-			operations := rewriteOperationsPerNode
-				              at: node
-				              ifAbsentPut: [ Set new ].
-			hooks do: [ :hook |
-					operations addAll:
-						(hook rewriteOperations:
-							 (originalAST childAtPath: node treePath)) ] ].
+	originalAST := method ast.
+	"Readme: flattened is functional api"
+	instrumentedAST := originalAST flattened.
+	rewriteOperationsPerNode := IdentityDictionary new.
+	
+	instrumentedAST nodesDo: [ :node | | operations |
+			operations := rewriteOperationsPerNode at: node ifAbsentPut: [ Set new ].
+			hooks do: [ :hook | | subNode |
+				subNode := originalAST childAtPath: node treePath.
+				operations addAll: (hook rewriteOperations: subNode) ] ].
 
 	instrumentedAST allChildrenPostOrder do: [ :node |
 			(rewriteOperationsPerNode at: node) ifNotEmpty: [ :operations |
 				self rewriteNode: node with: operations ] ].
+
 	^ instrumentedAST
 ]
 
@@ -96,9 +95,11 @@ IGInstrumentation >> instrumentMethod: method during: blockToEval [
 IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNodes wrapped: wrappedNode [
 
 	| newNodes |
+	
 	newNodes := wrappedNode igAssignmentNodes flatCollect: [ :assignment |
 		            beforeNodes asArray , { assignment }
 		            , afterNodes asArray ].
+	
 	^ node parent replaceNode: node withNodes: newNodes
 ]
 
