@@ -27,7 +27,7 @@ IGInstrumentation >> generateInstrumentedAST: method [
 	originalAST nodesDo: [ :node | node propertyAt: #original put: node ].
 	instrumentedAST := originalAST flattened. 
 	rewriteOperationsPerNode := IdentityDictionary new.
-	
+
 	instrumentedAST nodesDo: [ :node | | operations |
 			operations := rewriteOperationsPerNode at: node ifAbsentPut: [ Set new ].
 			hooks do: [ :hook | | subNode |
@@ -100,9 +100,7 @@ IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNod
 
 	| newNodes |
 	
-	newNodes := wrappedNode igAssignmentNodes flatCollect: [ :assignment |
-		            beforeNodes asArray , { assignment }
-		            , afterNodes asArray ].
+	newNodes := beforeNodes asArray , { node }, afterNodes asArray.
 	
 	^ node parent replaceNode: node withNodes: newNodes
 ]

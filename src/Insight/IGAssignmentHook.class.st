@@ -9,5 +9,5 @@ Class {
 { #category : 'actions' }
 IGAssignmentHook >> acceptsNode: node [
 
-	^ node isAssignment and: [ node parent isSequence ]
+	^ node isAssignment
 ]
