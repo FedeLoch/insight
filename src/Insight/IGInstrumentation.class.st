@@ -24,7 +24,9 @@ IGInstrumentation >> generateInstrumentedAST: method [
 
 	originalAST := method ast.
 	"Readme: flattened is functional api"
-	instrumentedAST := originalAST flattened.
+	"instrumentedAST := originalAST flattened."
+	
+	instrumentedAST := originalAST copy.
 	rewriteOperationsPerNode := IdentityDictionary new.
 	
 	instrumentedAST nodesDo: [ :node | | operations |

@@ -14,6 +14,12 @@ OCAssignmentNode >> flattenedNodes [
 ]
 
 { #category : '*Insight' }
+OCAssignmentNode >> igAssignmentNodes [
+
+	^ (self children flatCollect: #igAssignmentNodes), { self }
+]
+
+{ #category : '*Insight' }
 OCAssignmentNode >> isStatement [
 
 	parent ifNil: [ ^ true ].
