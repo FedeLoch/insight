@@ -23,13 +23,15 @@ IGInstrumentation >> generateInstrumentedAST: method [
 	| originalAST instrumentedAST rewriteOperationsPerNode |
 
 	originalAST := method ast.
+	"todo: review me"
+	originalAST nodesDo: [ :node | node propertyAt: #original put: node ].
 	instrumentedAST := originalAST flattened. 
 	rewriteOperationsPerNode := IdentityDictionary new.
 	
 	instrumentedAST nodesDo: [ :node | | operations |
 			operations := rewriteOperationsPerNode at: node ifAbsentPut: [ Set new ].
 			hooks do: [ :hook | | subNode |
-				subNode := originalAST childAtPath: node treePath.
+				subNode := node propertyAt: #original.
 				operations addAll: (hook rewriteOperations: subNode) ] ].
 
 	instrumentedAST allChildrenPostOrder do: [ :node |
