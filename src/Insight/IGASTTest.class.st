@@ -75,7 +75,7 @@ IGASTTest >> testFlattenedNodesAssignment3 [
 ]
 
 { #category : 'tests' }
-IGASTTest >> testFlattenedNodesAssignment4 [
+IGASTTest >> testFlattenedNodesAssignmentInArguments [
 
 	| assignment1 innerNode flattenedNode1 |
 	
@@ -83,6 +83,20 @@ IGASTTest >> testFlattenedNodesAssignment4 [
 	
 	innerNode := OCParser parseExpression: 'b := 7'.
 	flattenedNode1 := OCParser parseExpression: 'a msg: b'.
+	
+	self assertCollection: assignment1 flattenedNodes equals: { innerNode . flattenedNode1 }
+]
+
+{ #category : 'tests' }
+IGASTTest >> testFlattenedNodesAssignmentInReceiver [
+
+	| assignment1 innerNode flattenedNode1 |
+	
+	assignment1 := OCParser parseExpression: '(a := 42) msg: 7'.
+	
+	innerNode := OCParser parseExpression: 'a := 42'.
+	
+	flattenedNode1 := OCParser parseExpression: 'a msg: 7'.
 	
 	self assertCollection: assignment1 flattenedNodes equals: { innerNode . flattenedNode1 }
 ]
