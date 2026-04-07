@@ -1,10 +1,5 @@
 SmalltalkCISpec {
-  #loading : [
-    SCIMetacelloLoadSpec {
-      #baseline : 'Insight',
-      #directory : 'src'
-    }
-  ],
+  #preLoading : 'scripts/load.st',
   #testing : {
     #packages : [ 'Insight' ]
   }

@@ -3,10 +3,11 @@ BaselineOf subclass: #BaselineOfInsight
 	classVariables: { }
 	package: 'BaselineOfInsight'
 
-BaselineOfInsight class >> baseline: spec
+{ #category : 'baselines' }
+BaselineOfInsight >> baseline: spec [
+
 	<baseline>
-	spec
-		for: #pharo
-		do: [ 
-			spec package: 'Insight' with: [ spec repository: 'tonel://./src' ].
-			spec group: 'default' with: #('Insight') ]
+	spec for: #common do: [
+			spec package: 'Insight' with: [].
+			spec group: 'default' with: #( 'Insight' ) ]
+]
