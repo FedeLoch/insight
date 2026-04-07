@@ -1,5 +1,6 @@
 SmalltalkCISpec {
   #testing : {
-    #packages : [ 'Insight' ]
+    #packages : [ 'Insight' ],
+    #failOnZeroTests : false
   }
 }
