@@ -7,7 +7,7 @@ OCAssignmentNode >> flattenedNodes [
 	flattenedChildren := self value flattenedNodes.
 
 	newSelf := self copy value: (value isAssignment
-			            ifTrue: [ value variable ]
+			            ifTrue: [ value variable copy ]
 			            ifFalse: [ flattenedChildren first ]).
 
 	^ (flattenedChildren reject: #isLeafNode) , { newSelf }

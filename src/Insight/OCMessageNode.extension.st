@@ -11,12 +11,12 @@ OCMessageNode >> flattenedNodes [
 	
 	flattenedReceier := receiver flattenedNodes.
 	flattenedChildren addAll: flattenedReceier.
-	newSelf receiver: (receiver isAssignment ifTrue: [ receiver variable ] ifFalse: [ flattenedReceier first]).
+	newSelf receiver: (receiver isAssignment ifTrue: [ receiver variable copy ] ifFalse: [ flattenedReceier first ]).
 
 	newSelf arguments: (self arguments collect: [ :arg | | flattenedArg |
 		flattenedArg := arg flattenedNodes.
 		flattenedChildren addAll: flattenedArg.
-		arg isAssignment ifTrue: [ arg variable ] ifFalse: [ flattenedArg first ]
+		arg isAssignment ifTrue: [ arg variable copy ] ifFalse: [ flattenedArg first ]
 	]).
 
 	^ (flattenedChildren reject: #isLeafNode) asArray, { newSelf }
