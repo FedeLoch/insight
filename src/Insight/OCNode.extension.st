@@ -4,6 +4,8 @@ Extension { #name : 'OCNode' }
 OCNode >> isStatement [
 
 	^ false
+]
+
 OCNode >> igAssignmentNodes [
 
 	^ {  }
