@@ -9,69 +9,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      matrix:
+        smalltalk: [ Pharo64-12 ]
+    name: ${{ matrix.smalltalk }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install Pharo
-        run: |
-          curl -sL https://get.pharo.org/64/120+latest | bash
-          ./pharo --version
+      - uses: hpi-swa/setup-smalltalkCI@v1
+        with:
+          smalltalk-image: ${{ matrix.smalltalk }}
 
-      - name: Create Test Script
-        run: |
-          cat > test.st << 'EOF'
-          [
-            Metacello new
-              repository: 'tonel://./src';
-              baseline: 'Insight';
-              load.
-            Transcript show: 'Baseline loaded successfully'; cr.
-          ] on: Error do: [ :e |
-            Transcript show: 'Load error: ', e messageText; cr.
-            e freeze.
-            e debug
-          ].
-
-          | testSuite runner result |
-          testSuite := TestSuite named: 'Insight All Tests'.
-          (TestCase allSubclasses 
-            select: [ :c | c category asString beginsWith: 'Insight-Tests' ])
-            do: [ :c | testSuite addTest: (c buildSuite) ].
-
-          result := testSuite run.
-
-          Transcript cr; show: '=== TEST RESULTS ==='.
-          Transcript show: 'Errors: ', result errors size asString.
-          Transcript show: 'Failures: ', result failures size asString.
-          Transcript show: 'Passed: ', result passed size asString.
-
-          (result failures size + result errors size) > 0 
-            ifTrue: [ Smalltalk exitFailure ]
-            ifFalse: [ Smalltalk exitSuccess ].
-          EOF
-
-      - name: Run Tests
-        id: test-result
-        run: |
-          OUTPUT=$(timeout 300 ./pharo Pharo.image --headless test.st 2>&1 || true)
-          echo "$OUTPUT"
-          
-          # Extract results
-          PASSED=$(echo "$OUTPUT" | grep -oP 'Passed: \K\d+' | tail -1 || echo "0")
-          FAILED=$(echo "$OUTPUT" | grep -oP 'Failures: \K\d+' | tail -1 || echo "0")
-          ERRORS=$(echo "$OUTPUT" | grep -oP 'Errors: \K\d+' | tail -1 || echo "0")
-          
-          echo "passed=$PASSED" >> $GITHUB_OUTPUT
-          echo "failed=$FAILED" >> $GITHUB_OUTPUT
-          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
-
-      - name: Test Summary
-        if: always()
-        run: |
-          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Passed | Failed | Errors |" >> $GITHUB_STEP_SUMMARY
-          echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
-          echo "| ${{ steps.test-result.outputs.passed }} | ${{ steps.test-result.outputs.failed }} | ${{ steps.test-result.outputs.errors }} |" >> $GITHUB_STEP_SUMMARY
+      - run: smalltalkci -s ${{ matrix.smalltalk }}
+        shell: bash
+        timeout-minutes: 15

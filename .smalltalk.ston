@@ -1,0 +1,11 @@
+SmalltalkCISpec {
+  #loading : [
+    SCIMetacelloLoadSpec {
+      #baseline : 'Insight',
+      #directory : 'src'
+    }
+  ],
+  #testing : {
+    #packages : [ 'Insight-Tests' ]
+  }
+}
