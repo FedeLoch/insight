@@ -29,12 +29,6 @@ IGHook >> do: anAction [
 ]
 
 { #category : 'as yet unclassified' }
-IGHook >> instrumentationNode: originalNode [
-
-	^ action instrumentationNodeFor: (IGInstrumentationContext new astNode: originalNode).
-]
-
-{ #category : 'as yet unclassified' }
 IGHook >> rewriteAcceptedNode: node [
 
 	self subclassResponsibility 

@@ -1,13 +1,13 @@
 Class {
-	#name : 'IGBeforeStatementHook',
-	#superclass : 'IGStatementHook',
+	#name : 'IGBeforeAssignmentHook',
+	#superclass : 'IGAssignmentHook',
 	#category : 'Insight-Hooks',
 	#package : 'Insight',
 	#tag : 'Hooks'
 }
 
 { #category : 'as yet unclassified' }
-IGBeforeStatementHook >> rewriteAcceptedNode: node [
+IGBeforeAssignmentHook >> rewriteAcceptedNode: node [
 
 	^ action rewriteOperationsBeforeNode: node
 ]

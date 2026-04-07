@@ -23,8 +23,9 @@ IGInstrumentation >> generateInstrumentedAST: method [
 	| originalAST instrumentedAST rewriteOperationsPerNode |
 
 	originalAST := method ast.
-	"todo: review me"
+
 	originalAST nodesDo: [ :node | node propertyAt: #original put: node ].
+
 	instrumentedAST := originalAST flattened. 
 	rewriteOperationsPerNode := IdentityDictionary new.
 
@@ -47,10 +48,8 @@ IGInstrumentation >> generateInstrumentedMethod: method [
 	| instrumentedAST |
 	instrumentedAST := self generateInstrumentedAST: method.
 
-	^ method methodClass compiler
-		  ast: instrumentedAST;
-		  doSemanticAnalysis;
-		  compile
+	^ method methodClass compiler ast:
+		instrumentedAST; doSemanticAnalysis; compile
 ]
 
 { #category : 'initialization' }
@@ -109,21 +108,14 @@ IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNod
 IGInstrumentation >> rewriteNode: node with: operations [
 
 	| beforeNodes afterNodes wrapStatements wrappedNode newTempNodes |
+	
 	wrapStatements := operations select: [ :e | e isWrapStatement ].
-	wrappedNode := wrapStatements
-		               ifEmpty: [ node copy ]
-		               ifNotEmpty: [
-		               wrapStatements anyOne instrumentationNode ].
+	wrappedNode := wrapStatements ifEmpty: [ node copy ] ifNotEmpty: [
+		wrapStatements anyOne instrumentationNode ].
 
-	newTempNodes := operations
-		                select: #isAddNewTemp
-		                thenCollect: #instrumentationNode.
-	beforeNodes := operations
-		               select: #isBeforeAction
-		               thenCollect: #instrumentationNode.
-	afterNodes := operations
-		              select: #isAfterAction
-		              thenCollect: #instrumentationNode.
+	newTempNodes := operations select: #isAddNewTemp thenCollect: #instrumentationNode.
+	beforeNodes := operations select: #isBeforeAction thenCollect: #instrumentationNode.
+	afterNodes := operations select: #isAfterAction thenCollect: #instrumentationNode.
 
 	newTempNodes do: [ :e | node parent addTemporaryNamed: e name ].
 
@@ -142,7 +134,7 @@ IGInstrumentation >> rewriteNode: node with: operations [
 
 	"Default case"
 	node parent replaceNode: node withNodes:
-		beforeNodes asArray , { wrappedNode } , afterNodes asArray
+		beforeNodes asArray, { wrappedNode }, afterNodes asArray
 ]
 
 { #category : 'as yet unclassified' }
@@ -155,13 +147,12 @@ IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNod
 	assigmentNode := OCAssignmentNode
 		                 variable: (OCVariableNode named: 'returnVal')
 		                 value: returnValueNode.
+
 	newReturnNode := OCReturnNode value:
 		                 (OCVariableNode named: 'returnVal').
-	^ node parent
-		  replaceNode: node
-		  withNodes:
-			  beforeNodes asArray , { assigmentNode } , afterNodes asArray
-			  , { newReturnNode }
+
+	^ node parent replaceNode: node withNodes:
+		beforeNodes asArray, { assigmentNode }, afterNodes asArray, { newReturnNode }
 ]
 
 { #category : 'as yet unclassified' }
