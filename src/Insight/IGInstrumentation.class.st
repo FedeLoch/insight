@@ -61,12 +61,15 @@ IGInstrumentation >> initialize [
 
 { #category : 'as yet unclassified' }
 IGInstrumentation >> instrumentClass: aClass during: blockToEval [
- 
+
+	| previousMethods |
+
+	previousMethods := aClass localMethods.  
 	aClass localMethods do: [ :method | self instrumentMethod: method ].
 
 	^ blockToEval ensure: [
-		aClass localMethods do: [ :method | self uninstrumentMethod: method ]
-	].
+		previousMethods do: [ :method | self uninstrumentMethod: method ]
+	]
 ]
 
 { #category : 'as yet unclassified' }
