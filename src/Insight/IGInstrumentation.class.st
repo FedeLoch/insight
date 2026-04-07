@@ -30,7 +30,7 @@ IGInstrumentation >> generateInstrumentedAST: method [
 	rewriteOperationsPerNode := IdentityDictionary new.
 
 	instrumentedAST nodesDo: [ :node | | operations |
-			operations := rewriteOperationsPerNode at: node ifAbsentPut: [ Set new ].
+		operations := rewriteOperationsPerNode at: node ifAbsentPut: [ Set new ].
 			hooks do: [ :hook | | subNode |
 				subNode := node propertyAt: #original.
 				operations addAll: (hook rewriteOperations: subNode) ] ].
@@ -46,10 +46,10 @@ IGInstrumentation >> generateInstrumentedAST: method [
 IGInstrumentation >> generateInstrumentedMethod: method [
 
 	| instrumentedAST |
+
 	instrumentedAST := self generateInstrumentedAST: method.
 
-	^ method methodClass compiler ast:
-		instrumentedAST; doSemanticAnalysis; compile
+	^ method methodClass compiler ast: instrumentedAST; doSemanticAnalysis; compile
 ]
 
 { #category : 'initialization' }
@@ -99,7 +99,7 @@ IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNod
 
 	| newNodes |
 	
-	newNodes := beforeNodes asArray , { node }, afterNodes asArray.
+	newNodes := beforeNodes asArray, { node }, afterNodes asArray.
 	
 	^ node parent replaceNode: node withNodes: newNodes
 ]
@@ -111,7 +111,8 @@ IGInstrumentation >> rewriteNode: node with: operations [
 	
 	wrapStatements := operations select: [ :e | e isWrapStatement ].
 	wrappedNode := wrapStatements ifEmpty: [ node copy ] ifNotEmpty: [
-		wrapStatements anyOne instrumentationNode ].
+		wrapStatements anyOne instrumentationNode
+	].
 
 	newTempNodes := operations select: #isAddNewTemp thenCollect: #instrumentationNode.
 	beforeNodes := operations select: #isBeforeAction thenCollect: #instrumentationNode.
@@ -145,11 +146,9 @@ IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNod
 	returnValueNode := wrappedNode value.
 	node parent addTemporaryNamed: 'returnVal'.
 	assigmentNode := OCAssignmentNode
-		                 variable: (OCVariableNode named: 'returnVal')
-		                 value: returnValueNode.
+		variable: (OCVariableNode named: 'returnVal') value: returnValueNode.
 
-	newReturnNode := OCReturnNode value:
-		                 (OCVariableNode named: 'returnVal').
+	newReturnNode := OCReturnNode value: (OCVariableNode named: 'returnVal').
 
 	^ node parent replaceNode: node withNodes:
 		beforeNodes asArray, { assigmentNode }, afterNodes asArray, { newReturnNode }

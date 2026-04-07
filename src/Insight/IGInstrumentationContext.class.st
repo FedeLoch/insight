@@ -24,9 +24,9 @@ IGInstrumentationContext >> astNode: anObject [
 { #category : 'break' }
 IGInstrumentationContext >> break [
 
-	^ IGGenericReification value: (OCMessageNode
-			   receiver: OCVariableNode selfNode
-			   selector: (OCSelectorNode value: #halt))
+	^ IGGenericReification value: (
+			OCMessageNode receiver: OCVariableNode selfNode selector: (OCSelectorNode value: #halt)
+	)
 ]
 
 { #category : 'accessing' }

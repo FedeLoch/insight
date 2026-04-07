@@ -25,9 +25,12 @@ IGStatementResultReification >> nodeToReify [
 { #category : 'as yet unclassified' }
 IGStatementResultReification >> rewriteOperationsForNode: anOCMessageNode [
 
+	| variable |
+	
+	variable := OCVariableNode named: tempVarName.
+
 	^ {
-		  (IGWrapStatement with: (OCAssignmentNode
-				    variable: (OCVariableNode named: tempVarName)
-				    value: anOCMessageNode copy)).
-		  (IGAddNewTemp with: (OCVariableNode named: tempVarName)) }
+		  IGWrapStatement with: (OCAssignmentNode variable: variable value: anOCMessageNode copy).
+		  IGAddNewTemp with: variable copy
+	}
 ]

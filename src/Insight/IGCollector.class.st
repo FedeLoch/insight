@@ -52,12 +52,11 @@ IGCollector >> initialize [
 IGCollector >> instrumentationNodeFor: context [
 
 	| reification |
+
 	reification := self reificationForContext: context.
 	
-	^ OCMessageNode
-		  receiver: (OCLiteralNode value: self)
-		  selector: #value:
-		  arguments: { reification nodeToReify }
+	^ OCMessageNode receiver: (OCLiteralNode value: self)
+		selector: #value: arguments: { reification nodeToReify }
 ]
 
 { #category : 'as yet unclassified' }
