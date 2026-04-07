@@ -1,5 +1,7 @@
 # Insight
 
+[![CI](https://github.com/FedeLoch/insight/actions/workflows/ci.yml/badge.svg)](https://github.com/FedeLoch/insight/actions/workflows/ci.yml)
+
 A dynamic meta-instrumentation framework for Pharo.
 Insight enables runtime AST manipulation to inject hooks before/after statements and assignments.
 

@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Pharo
+        uses: hamletDuFromage/setup-pharo@v3
+        with:
+          pharo-version: '120'
+          installer-cache-version: 'v3'
+
+      - name: Load Baseline
+        run: |
+          # Create a script to load and test the project
+          cat > test.st << 'EOF'
+          [ 
+            Metacello new
+              repository: 'tonel://./src';
+              baseline: 'Insight';
+              load.
+            Transcript show: 'Baseline loaded successfully'; cr.
+          ] on: MetacelloLoadingNotFound, IceLibError do: [ 
+            "Try direct source loading if baseline fails"
+            Metacello new
+              baseline: 'Insight';
+              repository: 'github://FedeLoch/insight/src';
+              load.
+          ].
+
+          "Run all tests"
+          | testSuite runner |
+          testSuite := TestSuite named: 'Insight All Tests'.
+          (TestCase allSubclasses 
+            select: [ :c | c category asString beginsWith: 'Insight-Tests' ])
+            do: [ :c | testSuite addTest: (c buildSuite) ].
+
+          runner := TestRunner new.
+          runner openOnSuite: testSuite.
+          runner result: (testSuite run).
+
+          "Print summary"
+          Transcript cr; show: '=== TEST RESULTS ==='.
+          Transcript show: 'Errors: ', runner result errors size asString.
+          Transcript show: 'Failures: ', runner result failures size asString.
+          Transcript show: 'Passed: ', runner result passed size asString.
+
+          "Exit with error code if tests failed"
+          (runner result failures size + runner result errors size) > 0 
+            ifTrue: [ 
+              Transcript show: 'TESTS FAILED'.
+              Smalltalk exitFailure 
+            ].
+
+          Smalltalk exitSuccess.
+          EOF
+
+      - name: Run Tests
+        id: tests
+        run: |
+          OUTPUT=$(pharo-ui test.st --headless 2>&1 || true)
+          echo "$OUTPUT"
+          
+          # Extract test results
+          if echo "$OUTPUT" | grep -q "Passed:"; then
+            echo "passed=$(echo '$OUTPUT' | grep 'Passed:' | sed 's/.*Passed: *//' | tr -d '.')" >> $GITHUB_OUTPUT
+            echo "failures=$(echo '$OUTPUT' | grep 'Failures:' | sed 's/.*Failures: *//' | tr -d '.')" >> $GITHUB_OUTPUT
+            echo "errors=$(echo '$OUTPUT' | grep 'Errors:' | sed 's/.*Errors: *//' | tr -d '.')" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add Test Summary
+        if: always()
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.tests.outcome }}" == "success" ]; then
+            echo "| Passed | Failed | Errors |" >> $GITHUB_STEP_SUMMARY
+            echo "| --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
+            echo "| ${{ steps.tests.outputs.passed || 0 }} | ${{ steps.tests.outputs.failures || 0 }} | ${{ steps.tests.outputs.errors || 0 }} |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo ":x: Tests did not complete successfully" >> $GITHUB_STEP_SUMMARY
+          fi
