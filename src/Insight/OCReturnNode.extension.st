@@ -1,7 +1,7 @@
-Extension { #name : 'OCAssignmentNode' }
+Extension { #name : 'OCReturnNode' }
 
 { #category : '*Insight' }
-OCAssignmentNode >> flattenedNodes [
+OCReturnNode >> flattenedNodes [
 
 	| newSelf flattenedChildren |
 	flattenedChildren := self value flattenedNodes.
@@ -14,15 +14,7 @@ OCAssignmentNode >> flattenedNodes [
 ]
 
 { #category : '*Insight' }
-OCAssignmentNode >> igAssignmentNodes [
+OCReturnNode >> isStatement [ 
 
-	^ (self children flatCollect: #igAssignmentNodes), { self }
-]
-
-{ #category : '*Insight' }
-OCAssignmentNode >> isStatement [
-
-	parent ifNil: [ ^ true ].
-	
-	^ parent isStatement not
+	^ true
 ]

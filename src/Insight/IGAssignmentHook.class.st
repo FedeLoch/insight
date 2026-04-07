@@ -1,5 +1,5 @@
 Class {
-	#name : 'IGStatementHook',
+	#name : 'IGAssignmentHook',
 	#superclass : 'IGHook',
 	#category : 'Insight-Hooks',
 	#package : 'Insight',
@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'actions' }
-IGStatementHook >> acceptsNode: node [
+IGAssignmentHook >> acceptsNode: node [
 
-	^ (super acceptsNode: node) and: [ node isStatement ]
+	^ node isAssignment
 ]

@@ -21,7 +21,7 @@ IGMock >> initialize [
 { #category : 'accessing' }
 IGMock >> variable1: var [
 
-	variable1 := variable1 := var.
+	variable1 := variable2 := var.
 ]
 
 { #category : 'accessing' }

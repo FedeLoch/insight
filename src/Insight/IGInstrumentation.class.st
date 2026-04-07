@@ -21,23 +21,23 @@ IGInstrumentation >> addHook: aHook [
 IGInstrumentation >> generateInstrumentedAST: method [
 
 	| originalAST instrumentedAST rewriteOperationsPerNode |
+
 	originalAST := method ast.
-	instrumentedAST := originalAST copy.
+	"todo: review me"
+	originalAST nodesDo: [ :node | node propertyAt: #original put: node ].
+	instrumentedAST := originalAST flattened. 
 	rewriteOperationsPerNode := IdentityDictionary new.
 
-	instrumentedAST nodesDo: [ :node |
-			| operations |
-			operations := rewriteOperationsPerNode
-				              at: node
-				              ifAbsentPut: [ Set new ].
-			hooks do: [ :hook |
-					operations addAll:
-						(hook rewriteOperations:
-							 (originalAST childAtPath: node treePath)) ] ].
+	instrumentedAST nodesDo: [ :node | | operations |
+			operations := rewriteOperationsPerNode at: node ifAbsentPut: [ Set new ].
+			hooks do: [ :hook | | subNode |
+				subNode := node propertyAt: #original.
+				operations addAll: (hook rewriteOperations: subNode) ] ].
 
 	instrumentedAST allChildrenPostOrder do: [ :node |
 			(rewriteOperationsPerNode at: node) ifNotEmpty: [ :operations |
 				self rewriteNode: node with: operations ] ].
+
 	^ instrumentedAST
 ]
 
@@ -62,12 +62,15 @@ IGInstrumentation >> initialize [
 
 { #category : 'as yet unclassified' }
 IGInstrumentation >> instrumentClass: aClass during: blockToEval [
- 
+
+	| previousMethods |
+
+	previousMethods := aClass localMethods.  
 	aClass localMethods do: [ :method | self instrumentMethod: method ].
 
 	^ blockToEval ensure: [
-		aClass localMethods do: [ :method | self uninstrumentMethod: method ]
-	].
+		previousMethods do: [ :method | self uninstrumentMethod: method ]
+	]
 ]
 
 { #category : 'as yet unclassified' }
@@ -96,9 +99,9 @@ IGInstrumentation >> instrumentMethod: method during: blockToEval [
 IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNodes wrapped: wrappedNode [
 
 	| newNodes |
-	newNodes := wrappedNode igAssignmentNodes flatCollect: [ :assignment |
-		            beforeNodes asArray , { assignment }
-		            , afterNodes asArray ].
+	
+	newNodes := beforeNodes asArray , { node }, afterNodes asArray.
+	
 	^ node parent replaceNode: node withNodes: newNodes
 ]
 
@@ -140,24 +143,6 @@ IGInstrumentation >> rewriteNode: node with: operations [
 	"Default case"
 	node parent replaceNode: node withNodes:
 		beforeNodes asArray , { wrappedNode } , afterNodes asArray
-]
-
-{ #category : 'as yet unclassified' }
-IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNodes [
-
-	| assigmentNode newReturnNode wrappedNode |
-	wrappedNode := wrappedNode value.
-	node parent addTemporaryNamed: 'returnVal'.
-	assigmentNode := OCAssignmentNode
-		                 variable: (OCVariableNode named: 'returnVal')
-		                 value: wrappedNode.
-	newReturnNode := OCReturnNode value:
-		                 (OCVariableNode named: 'returnVal').
-	^ node parent
-		  replaceNode: node
-		  withNodes:
-			  beforeNodes asArray , { assigmentNode } , afterNodes asArray
-			  , { newReturnNode }
 ]
 
 { #category : 'as yet unclassified' }
