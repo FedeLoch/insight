@@ -17,6 +17,13 @@ IGTest >> conditionalMethod: aBoolean [
 ]
 
 { #category : 'helper methods' }
+IGTest >> exceptionMethod [
+
+	Error signal
+
+]
+
+{ #category : 'helper methods' }
 IGTest >> incrementingTvariable [
 
 	| t |
@@ -24,6 +31,14 @@ IGTest >> incrementingTvariable [
 	t := 0.
 
 	t := t + 1
+]
+
+{ #category : 'helper methods' }
+IGTest >> nonLocalReturnMethod: aBoolean [
+
+	aBoolean ifTrue: [ ^42 ].
+	
+	^84
 ]
 
 { #category : 'helper methods' }
@@ -221,6 +236,55 @@ IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
 	methodToInstrument ast statements do: [ :statement |
 		self assert: (collector includes: statement)
 	]
+]
+
+{ #category : 'method tests' }
+IGTest >> testDetectException [
+
+	| instrumentation beforeCounter beforeHook afterCounter afterHook methodToInstrument |
+
+	beforeCounter := IGCounter new.
+	beforeHook := IGBeforeStatementHook new do: beforeCounter.
+
+	afterCounter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: afterCounter.
+
+	instrumentation := IGInstrumentation new addHook: beforeHook; addHook: afterHook.
+	methodToInstrument := IGTest >> #exceptionMethod.
+
+	[ instrumentation instrumentMethod: methodToInstrument during: [
+		self exceptionMethod
+	]] on: Error do: []. 
+
+	self assert: beforeCounter count equals: 1.
+	self assert: afterCounter count equals: 0.
+
+]
+
+{ #category : 'method tests' }
+IGTest >> testDetectIfStatementEarlyReturned [
+
+	| instrumentation beforeCounter beforeHook afterCounter afterHook methodToInstrument methodStatement |
+
+	beforeCounter := IGCounter new countKeyBy: [ :context | context astNode ].
+	beforeHook := IGBeforeStatementHook new do: beforeCounter.
+
+	afterCounter := IGCounter new countKeyBy: [ :context | context astNode ].
+	afterHook := IGAfterStatementHook new do: afterCounter.
+
+	instrumentation := IGInstrumentation new addHook: beforeHook; addHook: afterHook.
+	methodToInstrument := IGTest >> #nonLocalReturnMethod:.
+
+	instrumentation instrumentMethod: methodToInstrument during: [
+		self nonLocalReturnMethod: true.
+		self nonLocalReturnMethod: false.
+	]. 
+
+	methodStatement := methodToInstrument ast statements first.
+
+	self assert: (beforeCounter countAt: methodStatement) equals: 2.
+	self assert: (afterCounter countAt: methodStatement) equals: 1.
+
 ]
 
 { #category : 'method tests' }
