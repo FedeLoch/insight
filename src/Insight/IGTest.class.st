@@ -17,6 +17,10 @@ IGTest >> conditionalMethod: aBoolean [
 ]
 
 { #category : 'helper methods' }
+IGTest >> emptyMethod [
+]
+
+{ #category : 'helper methods' }
 IGTest >> incrementingTvariable [
 
 	| t |
@@ -221,6 +225,23 @@ IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
 	methodToInstrument ast statements do: [ :statement |
 		self assert: (collector includes: statement)
 	]
+]
+
+{ #category : 'method tests' }
+IGTest >> testEmptyMethod [
+
+	| instrumentation afterHook counter methodToInstrument |
+	
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+
+	instrumentation := IGInstrumentation new addHook: afterHook.
+	methodToInstrument := IGTest >> #emptyMethod.
+	
+	instrumentation instrumentMethod: methodToInstrument during: [ self emptyMethod ].
+	
+	self assert: counter count equals: 0
+
 ]
 
 { #category : 'method tests' }
