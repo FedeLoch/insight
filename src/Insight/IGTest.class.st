@@ -81,6 +81,26 @@ IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 ]
 
 { #category : 'method tests' }
+IGTest >> testCollectArbitraryValueWithAnBeforeStatementHook [
+
+	| instrumentation beforeHook collector methodToInstrument |
+
+	collector := IGCollector collect: [ :ctx | ctx break ].
+	beforeHook := IGBeforeStatementHook new do: collector.
+
+	instrumentation := IGInstrumentation new addHook: beforeHook.
+	methodToInstrument := IGTest >> #returnMethod.
+
+	[
+		instrumentation instrumentMethod: methodToInstrument
+			during: [ self returnMethod ]
+		] on: Halt
+		do: [ collector value: 42 ].
+
+	self assertCollection: collector collection asArray equals: { 42 }
+]
+
+{ #category : 'method tests' }
 IGTest >> testCollectStatementResultsWithAnAfterStatementHook [
 	
 	| instrumentation afterHook collector methodToInstrument |
