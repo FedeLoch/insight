@@ -97,7 +97,8 @@ IGTest >> testCollectArbitraryValueWithAnBeforeStatementHook [
 		] on: Halt
 		do: [ collector value: 42 ].
 
-	self assertCollection: collector collection asArray equals: { 42 }
+	self assertCollection: collector collection asArray
+		equals: { self. 42 }
 ]
 
 { #category : 'method tests' }
