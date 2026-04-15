@@ -91,14 +91,13 @@ IGTest >> testCollectArbitraryValueWithAnBeforeStatementHook [
 	instrumentation := IGInstrumentation new addHook: beforeHook.
 	methodToInstrument := IGTest >> #returnMethod.
 
-	[
+	self should: [
 		instrumentation instrumentMethod: methodToInstrument
 			during: [ self returnMethod ]
-		] on: Halt
-		do: [ collector value: 42 ].
+	] raise: Halt.
 
 	self assertCollection: collector collection asArray
-		equals: { self. 42 }
+		equals: { self }
 ]
 
 { #category : 'method tests' }
