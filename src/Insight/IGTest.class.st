@@ -150,6 +150,29 @@ IGTest >> testCountAllStatementExecutionsInAClass [
 ]
 
 { #category : 'method tests' }
+IGTest >> testCountStatementsAndVariableValueWith2AfterHooks [
+
+	| instrumentation afterCounterHook counter afterCollectorHook collector methodToInstrument |
+
+	counter := IGCounter new.
+	afterCounterHook := IGAfterStatementHook new do: counter.
+
+	collector := IGCollector collect: [ :ctx | ctx variableNamed: 't' ].
+	afterCollectorHook := IGAfterStatementHook new do: collector.
+
+	instrumentation := IGInstrumentation new
+								addHook: afterCounterHook;
+								addHook: afterCollectorHook.
+	methodToInstrument := IGTest >> #conditionalMethod:.
+
+	instrumentation instrumentMethod: methodToInstrument
+		during: [ self conditionalMethod: true ].
+
+	self assert: counter count equals: 3.
+	self assertCollection: collector collection asArray equals: { 1. 1. 1 }
+]
+
+{ #category : 'method tests' }
 IGTest >> testCounterPerStatement [
 
 	| instrumentation afterHook counter result methodToInstrument |
