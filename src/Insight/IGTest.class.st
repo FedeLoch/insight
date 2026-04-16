@@ -31,6 +31,32 @@ IGTest >> incrementingTvariable [
 	t := t + 1
 ]
 
+{ #category : 'method tests' }
+IGTest >> instrumenting: targetToInstrument with: hooks running: programBlock assert: assertBlock [
+
+	| instrumentation |
+	
+	instrumentation := IGInstrumentation new addHooks: hooks.
+	
+	instrumentation instrumentMethod: targetToInstrument during: programBlock.
+	
+	assertBlock value: targetToInstrument
+
+]
+
+{ #category : 'method tests' }
+IGTest >> instrumentingClass: aClass with: hooks running: programBlock assert: assertBlock [
+
+	| instrumentation |
+	
+	instrumentation := IGInstrumentation new addHooks: hooks.
+	
+	instrumentation instrumentClass: aClass during: programBlock.
+	
+	assertBlock value: aClass
+
+]
+
 { #category : 'helper methods' }
 IGTest >> returnMethod [
 
@@ -50,249 +76,217 @@ IGTest >> sequencialMethod [
 { #category : 'method tests' }
 IGTest >> testCollectArbitraryValueWithAnAfterStatementHook [
 
-	| instrumentation afterHook collector result methodToInstrument |
+	| afterHook collector methodToInstrument |
 
 	collector := IGCollector collect: [ :instrumentationContext | instrumentationContext receiver ].
 	afterHook := IGAfterStatementHook new do: collector.
-	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #sequencialMethod.
 
-	result := instrumentation instrumentMethod: methodToInstrument during: [ self sequencialMethod ].
-
-	self assert: (collector includes: self)
+	self instrumenting: methodToInstrument with: { afterHook } running: [ self sequencialMethod ] assert: [ :method |
+		self assert: (collector includes: self)
+	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testCollectArbitraryValueWithAnBeforeAndAfterStatementHook [
 
-	| instrumentation beforeHook afterHook beforeCollector afterCollector result methodToInstrument |
+	| beforeHook afterHook beforeCollector afterCollector methodToInstrument |
 
 	beforeCollector := IGCollector collect: [ :instrumentationContext | instrumentationContext variableNamed: 't' ].
 	afterCollector := IGCollector collect: [ :instrumentationContext | instrumentationContext variableNamed: 't' ].
 
 	beforeHook := IGBeforeStatementHook new do: beforeCollector.
 	afterHook := IGAfterStatementHook new do: afterCollector.
-	instrumentation := IGInstrumentation new addHook: afterHook; addHook: beforeHook.
 	methodToInstrument := IGTest >> #incrementingTvariable.
 
-	result := instrumentation instrumentMethod: methodToInstrument during: [ self incrementingTvariable ].
-
-	self assert: beforeCollector collection asArray equals: { nil . 0 }.
-	self assert: afterCollector collection asArray equals: { 0 . 1 }
+	self instrumenting: methodToInstrument with: { afterHook . beforeHook } running: [ self incrementingTvariable ] assert: [ :method |
+		self assert: beforeCollector collection asArray equals: { nil . 0 }.
+		self assert: afterCollector collection asArray equals: { 0 . 1 }
+	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testCollectStatementResultsWithAnAfterStatementHook [
 
-	| instrumentation afterHook collector methodToInstrument |
+	| afterHook collector methodToInstrument |
 
 	collector := IGCollector collect: [ :instrumentationContext | instrumentationContext statementResult ].
 	afterHook := IGAfterStatementHook new do: collector.
-	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #sequencialMethod.
 
-	instrumentation instrumentMethod: methodToInstrument during: [ self sequencialMethod ].
-
-	self assertCollection: collector collection asArray equals: { 3 . 7 . self }
+	self instrumenting: methodToInstrument with: { afterHook } running: [ self sequencialMethod ] assert: [ :method |
+		self assertCollection: collector collection asArray equals: { 3 . 7 . self }
+	]
 ]
 
 { #category : 'class tests' }
 IGTest >> testCountAllAssignmentsCallingOnlyOneAssignmentInAClass [
 
-	| instrumentation afterHook counter |
+	| afterHook counter |
 
 	counter := IGCounter new.
 	afterHook := IGAfterAssignmentHook new do: counter.
-	instrumentation := IGInstrumentation new addHook: afterHook.
 
-	instrumentation instrumentClass: IGMock during: [ | instance |
+	self instrumentingClass: IGMock with: { afterHook } running: [ | instance |
 		instance := IGMock basicNew.
 		instance variable2: 'hola'.
-	].
-
-	self assert: (counter count) equals: 1
+	] assert: [ :class | self assert: (counter count) equals: 1 ]
 ]
 
 { #category : 'class tests' }
 IGTest >> testCountAllAssignmentsInAClass [
 
-	| instrumentation afterHook counter |
+	| afterHook counter |
 
 	counter := IGCounter new.
 	afterHook := IGAfterAssignmentHook new do: counter.
-	instrumentation := IGInstrumentation new addHook: afterHook.
-
-	instrumentation instrumentClass: IGMock during: [ | instance |
+	
+	self instrumentingClass: IGMock with: { afterHook } running: [ | instance |
 		instance := IGMock new.
 		instance variable1: 42.
 		instance variable2: 'hola'.
-	].
-
-	self assert: (counter count) equals: 5
+	] assert: [ :class | self assert: (counter count) equals: 5 ]
 ]
 
 { #category : 'class tests' }
 IGTest >> testCountAllStatementExecutionsInAClass [
 
-	| instrumentation afterHook counter |
+	| afterHook counter |
 
 	counter := IGCounter new.
 	afterHook := IGAfterStatementHook new do: counter.
-	instrumentation := IGInstrumentation new addHook: afterHook.
-
-	instrumentation instrumentClass: IGMock during: [ | instance |
+	
+	self instrumentingClass: IGMock with: { afterHook } running: [ | instance |
 		instance := IGMock new.
 		instance variable1: 42.
 		instance variable2: 'hola'.
-	].
-
-	self assert: (counter count) equals: 5
+	] assert: [ :class | self assert: (counter count) equals: 5 ]
 ]
 
 { #category : 'method tests' }
 IGTest >> testCountStatementsAndVariableValueWith2AfterHooks [
 
-	| instrumentation afterCounterHook counter afterCollectorHook collector methodToInstrument |
+	| afterCounterHook counter afterCollectorHook collector methodToInstrument |
 
 	counter := IGCounter new.
 	afterCounterHook := IGAfterStatementHook new do: counter.
 
 	collector := IGCollector collect: [ :ctx | ctx variableNamed: 't' ].
 	afterCollectorHook := IGAfterStatementHook new do: collector.
-
-	instrumentation := IGInstrumentation new
-								addHook: afterCounterHook;
-								addHook: afterCollectorHook.
 	methodToInstrument := IGTest >> #conditionalMethod:.
 
-	instrumentation instrumentMethod: methodToInstrument
-		during: [ self conditionalMethod: true ].
-
-	self assert: counter count equals: 3.
-	self assertCollection: collector collection asArray equals: { 1. 1. 1 }
+	self instrumenting: methodToInstrument with: { afterCounterHook . afterCollectorHook } running: [ self conditionalMethod: true ] assert: [ :method |
+		self assert: counter count equals: 3.
+		self assertCollection: collector collection asArray equals: { 1 . 1 . 1 }
+	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testCounterPerStatement [
 
-	| instrumentation afterHook counter result methodToInstrument |
+	| afterHook counter methodToInstrument |
 
 	counter := IGCounter new countKeyBy: [ :context | context astNode ].
 	afterHook := IGAfterStatementHook new do: counter.
-	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #incrementingTvariable.
 
-	methodToInstrument ast statements do: [ :node |
-		self assert: (counter countAt: node) equals: 0
-	].
+	methodToInstrument ast statements do: [ :node | self assert: (counter countAt: node) equals: 0 ].
 
-	result := instrumentation instrumentMethod: methodToInstrument during: [ self incrementingTvariable ].
-
-	methodToInstrument ast statements do: [ :node |
-		self assert: (counter countAt: node) equals: 1
-	].
+	self instrumenting: methodToInstrument with: { afterHook } running: [ self incrementingTvariable ] assert: [ :method |
+		methodToInstrument ast statements do: [ :node | self assert: (counter countAt: node) equals: 1 ]
+	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testCounterWithAnAfterStatementHook [
 
-	| instrumentation afterHook counter result methodToInstrument |
+	| afterHook counter methodToInstrument |
 
 	counter := IGCounter new.
 	afterHook := IGAfterStatementHook new do: counter.
-	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #incrementingTvariable.
-
+	
 	self assert: counter count equals: 0.
 
-	result := instrumentation instrumentMethod: methodToInstrument during: [ self incrementingTvariable ].
-
-	self assert: counter count equals: 2.
+	self instrumenting: methodToInstrument with: { afterHook } running: [ self incrementingTvariable ] assert: [ :method |
+		self assert: counter count equals: 2.
+	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testCoverageInstrumentAConditionalWithAnAfterHook [
 
-	| instrumentation afterHook collector methodToInstrument ifStatement trueStatement falseStatement |
+	| afterHook collector methodToInstrument  |
 
 	collector := IGCounter new countKeyBy: [ :context | context astNode ].
 	afterHook := IGAfterStatementHook new do: collector.
-	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #conditionalMethod:.
 
-	instrumentation instrumentMethod: methodToInstrument during: [
-		self conditionalMethod: true.
-		self conditionalMethod: false
-	].
+	self instrumenting: methodToInstrument with: { afterHook } running: [ self conditionalMethod: true . self conditionalMethod: false ] assert:
+		[ :method | | ifStatement trueStatement falseStatement |
 
-	ifStatement := methodToInstrument ast statements first.
-	trueStatement := ifStatement arguments first statements first.
-	falseStatement := ifStatement arguments second statements first.
+			ifStatement := methodToInstrument ast statements first.
+			trueStatement := ifStatement arguments first statements first.
+			falseStatement := ifStatement arguments second statements first.
 
-	self assert: (collector countAt: ifStatement) equals: 2.
-	self assert: (collector countAt: trueStatement) equals: 1.
-	self assert: (collector countAt: falseStatement) equals: 1.
+			self assert: (collector countAt: ifStatement) equals: 2.
+			self assert: (collector countAt: trueStatement) equals: 1.
+			self assert: (collector countAt: falseStatement) equals: 1.
+	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testCoverageInstrumentAStatementWithAnAfterHook [
 
-	| instrumentation afterHook collector result methodToInstrument |
+	| afterHook collector methodToInstrument |
 
 	collector := IGCollector new.
 	afterHook := IGAfterStatementHook new do: collector.
-	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #sequencialMethod.
 
-	result := instrumentation instrumentMethod: methodToInstrument during: [ self sequencialMethod ].
-
-	methodToInstrument ast statements do: [ :statement |
-		self assert: (collector includes: statement)
+	self instrumenting: methodToInstrument with: { afterHook } running: [ self sequencialMethod ] assert: [ :method |
+		method ast statements do: [ :statement | self assert: (collector includes: statement) ]
 	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testEmptyMethod [
 
-	| instrumentation afterHook counter methodToInstrument |
+	| afterHook counter methodToInstrument |
 
 	counter := IGCounter new.
 	afterHook := IGAfterStatementHook new do: counter.
-
-	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #emptyMethod.
 
-	instrumentation instrumentMethod: methodToInstrument during: [ self emptyMethod ].
-
-	self assert: counter count equals: 0
+	self instrumenting: methodToInstrument with: { afterHook } running: [ self emptyMethod ] assert: [ :method |
+		self assert: counter count equals: 0
+	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testInstrumentAfterReturn [
 
-	| instrumentation afterHook counter methodToInstrument |
+	| afterHook counter methodToInstrument |
 
 	counter := IGCounter new.
 	afterHook := IGAfterStatementHook new do: counter.
-	instrumentation := IGInstrumentation new addHook: afterHook.
 	methodToInstrument := IGTest >> #returnMethod.
 
-	instrumentation instrumentMethod: methodToInstrument during: [ self returnMethod ].
-
-	self assert: counter count equals: 1
+	self instrumenting: methodToInstrument with: { afterHook } running: [ self returnMethod ] assert: [ :method |
+		self assert: counter count equals: 1
+	]
 ]
 
 { #category : 'method tests' }
 IGTest >> testInstrumentBeforeReturn [
 
-	| instrumentation beforeHook counter methodToInstrument |
+	| beforeHook counter methodToInstrument |
 
 	counter := IGCounter new.
 	beforeHook := IGBeforeStatementHook new do: counter.
-	instrumentation := IGInstrumentation new addHook: beforeHook.
 	methodToInstrument := IGTest >> #returnMethod.
 
-	instrumentation instrumentMethod: methodToInstrument during: [ self returnMethod ].
-
-	self assert: counter count equals: 1
+	self instrumenting: methodToInstrument with: { beforeHook } running: [ self returnMethod ] assert: [ :method |
+		self assert: counter count equals: 1
+	]
 ]

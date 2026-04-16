@@ -17,6 +17,12 @@ IGInstrumentation >> addHook: aHook [
 	hooks add: aHook 
 ]
 
+{ #category : 'adding' }
+IGInstrumentation >> addHooks: collection [
+
+	hooks addAll: collection
+]
+
 { #category : 'as yet unclassified' }
 IGInstrumentation >> generateInstrumentedAST: method [
 
