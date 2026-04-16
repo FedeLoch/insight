@@ -1,6 +1,9 @@
 SmalltalkCISpec {
-  #testing : {
-    #packages : [ 'Insight' ],
-    #failOnZeroTests : false
-  }
+  #loading : [
+    SCIMetacelloLoadSpec {
+      #baseline : 'Insight',
+      #directory : 'src',
+      #platforms : [ #pharo ]
+    }
+  ]
 }
