@@ -20,6 +20,6 @@ IGCallGraphGenerator class >> callGraph: aClass On: aBlock [
 		IGBeforeMethodHook new do: (BeforeHistoryAction history: history).
 		IGAfterMethodHook new do: (AfterHistoryAction history: history)
 	}; instrumentClass: aClass during: aBlock.
-
-	"^ IGCallGraph from: history"
+	
+	^ AllocationGraph from: history
 ]

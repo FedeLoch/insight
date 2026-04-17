@@ -5,3 +5,9 @@ Class {
 	#package : 'Insight',
 	#tag : 'Actions'
 }
+
+{ #category : 'as yet unclassified' }
+IGDoAction >> instrumentationNodeFor: context [
+
+	1 halt.
+]

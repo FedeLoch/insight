@@ -5,3 +5,9 @@ Class {
 	#package : 'Insight',
 	#tag : 'Hooks'
 }
+
+{ #category : 'actions' }
+IGMethodHook >> acceptsNode: node [
+
+	^ node isMethod
+]
