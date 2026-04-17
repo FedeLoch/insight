@@ -1,6 +1,7 @@
 Class {
 	#name : 'BaselineOfInsight',
 	#superclass : 'BaselineOf',
+	#category : 'BaselineOfInsight',
 	#package : 'BaselineOfInsight'
 }
 
@@ -8,5 +9,8 @@ Class {
 BaselineOfInsight >> baseline: spec [
 
 	<baseline>
-	spec for: #common do: [ spec package: #Insight ]
+	
+	spec baseline: 'IllimaniProfiler' with: [ spec repository: 'github://jordanmontt/illimani-memory-profiler:main' ].
+	
+	spec package: 'Insight' with: [ spec requires: #( 'IllimaniProfiler' ) ]
 ]

@@ -6,9 +6,9 @@ Class {
 		'keyBlock',
 		'allKey'
 	],
-	#category : 'Insight-Instrumentation Action',
+	#category : 'Insight-Actions',
 	#package : 'Insight',
-	#tag : 'Instrumentation Action'
+	#tag : 'Actions'
 }
 
 { #category : 'initialization' }
