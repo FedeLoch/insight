@@ -15,8 +15,20 @@ AfterHistoryAction class >> history: history [
 	^ self new history: history
 ]
 
+{ #category : 'as yet unclassified' }
+AfterHistoryAction >> do: value [
+	
+	1 halt.
+]
+
 { #category : 'accessing' }
 AfterHistoryAction >> history: aHistory [
 
 	history := aHistory 
+]
+
+{ #category : 'as yet unclassified' }
+AfterHistoryAction >> reificationForContext: context [
+
+	^ context astNode
 ]

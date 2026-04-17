@@ -7,7 +7,19 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
+IGDoAction >> do: value [
+
+	self subclassResponsibility 
+]
+
+{ #category : 'as yet unclassified' }
 IGDoAction >> instrumentationNodeFor: context [
 
-	1 halt.
+	| reification |
+	reification := self reificationForContext: context.
+
+	^ OCMessageNode
+		  receiver: (OCLiteralValueNode value: self)
+		  selector: (OCSelectorNode value: #do:)
+		  arguments: { reification nodeToReify }
 ]
