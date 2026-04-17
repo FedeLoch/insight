@@ -71,6 +71,13 @@ IGTest >> sequencialMethod [
 	self yourself
 ]
 
+{ #category : 'helper methods' }
+IGTest >> slowFactorial: n [
+
+	n < 2 ifTrue: [ ^1 ].
+	^n * (self slowFactorial: n - 1)
+]
+
 { #category : 'method tests' }
 IGTest >> testCollectArbitraryValueWithAnAfterStatementHook [
 
@@ -287,4 +294,19 @@ IGTest >> testInstrumentBeforeReturn [
 	self instrumenting: methodToInstrument with: { beforeHook } running: [ self returnMethod ] assert: [ :method |
 		self assert: counter count equals: 1
 	]
+]
+
+{ #category : 'method tests' }
+IGTest >> testRecursiveMethodAccumulatesCount [
+
+	| counter afterHook methodToInstrument result |
+
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	methodToInstrument := IGTest >> #slowFactorial:.
+
+	self instrumenting: methodToInstrument with: { afterHook } running: [ result := self slowFactorial: 3 ] assert: [ :method |
+		self assert: result equals: 6.
+		self assert: counter count equals: 5
+		 ]
 ]
