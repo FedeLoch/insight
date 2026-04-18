@@ -10,6 +10,12 @@ Class {
 }
 
 { #category : 'accessing' }
+CallGraphHistoryAction class >> history: history [
+
+	^ self new history: history
+]
+
+{ #category : 'accessing' }
 CallGraphHistoryAction >> history: aHistory [
 
 	history := aHistory
@@ -18,5 +24,5 @@ CallGraphHistoryAction >> history: aHistory [
 { #category : 'as yet unclassified' }
 CallGraphHistoryAction >> reificationForContext: context [
 
-	^ context astNode
+	^ context astNode 
 ]

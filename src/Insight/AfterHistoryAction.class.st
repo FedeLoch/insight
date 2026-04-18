@@ -6,14 +6,8 @@ Class {
 	#tag : 'Call Graph'
 }
 
-{ #category : 'accessing' }
-AfterHistoryAction class >> history: history [
-
-	^ self new history: history
-]
-
 { #category : 'as yet unclassified' }
-AfterHistoryAction >> do: method [
+AfterHistoryAction >> do: methodNode [
 	
-	history pop: method
+	history pop: (methodNode propertyAt: 'compiledMethod')
 ]

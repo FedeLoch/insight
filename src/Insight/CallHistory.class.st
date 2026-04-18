@@ -31,11 +31,11 @@ CallHistory >> isEmpty [
 { #category : 'adding' }
 CallHistory >> pop: method [
 
-	actions add: { 'pop' . method }
+	actions add: (PopAction from: method)
 ]
 
 { #category : 'adding' }
 CallHistory >> push: method [
 
-	actions add: { 'push' . method }
+	actions add: (PushAction from: method)
 ]
