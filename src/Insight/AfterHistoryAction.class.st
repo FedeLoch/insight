@@ -16,9 +16,9 @@ AfterHistoryAction class >> history: history [
 ]
 
 { #category : 'as yet unclassified' }
-AfterHistoryAction >> do: value [
+AfterHistoryAction >> do: method [
 	
-	1 halt.
+	history pop: method
 ]
 
 { #category : 'accessing' }

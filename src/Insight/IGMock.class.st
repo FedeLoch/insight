@@ -10,12 +10,28 @@ Class {
 	#tag : 'Tests'
 }
 
+{ #category : 'helper methods' }
+IGMock >> emptyMethod [
+]
+
 { #category : 'accessing' }
 IGMock >> initialize [ 
 
 	super initialize.
 	variable1 := 0.
 	variable2 := 0.
+]
+
+{ #category : 'helper methods' }
+IGMock >> messageA: argument [
+
+	self messageB: argument
+]
+
+{ #category : 'helper methods' }
+IGMock >> messageB: argument [
+
+	^ self yourself 
 ]
 
 { #category : 'accessing' }

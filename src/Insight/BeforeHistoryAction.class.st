@@ -18,7 +18,7 @@ BeforeHistoryAction class >> history: history [
 { #category : 'as yet unclassified' }
 BeforeHistoryAction >> do: value [
 	
-	1 halt.
+	history push: value
 ]
 
 { #category : 'accessing' }

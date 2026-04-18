@@ -117,7 +117,6 @@ IGInstrumentation >> rewriteMethod: method before: beforeNodes after: afterNodes
 	
 	methodBody := method body.
 	newNode := OCSequenceNode statements: (beforeNodes asArray, { methodBody }, afterNodes asArray).
-	1 halt.
 	"TODO: should we replace the current method by a new one that call have a sequence with:
 		- beforeNodes
 		- call method: sameArgs

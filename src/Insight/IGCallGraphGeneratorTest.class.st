@@ -11,7 +11,7 @@ IGCallGraphGeneratorTest >> testCreatingCallGraphOfThisClassRunningAnEmptyBlock 
 
 	| graph |
 
-	graph := IGCallGraphGenerator callGraph: IGTest class On: [].
+	graph := IGCallGraphGenerator callGraph: IGMock On: [].
 
 	self assert: graph nodes equals: #()
 ]
@@ -21,7 +21,7 @@ IGCallGraphGeneratorTest >> testCreatingCallGraphOfThisClassRunningAnEmptyMethod
 
 	| graph |
 
-	graph := IGCallGraphGenerator callGraph: IGTest class On: [ IGTest new emptyMethod ].
+	graph := IGCallGraphGenerator callGraph: IGMock On: [ IGMock new emptyMethod ].
 
 	self assert: graph nodes equals: #()
 ]
@@ -31,7 +31,7 @@ IGCallGraphGeneratorTest >> testCreatingCallGraphOfThisClassRunningAnSimpleMetho
 
 	| graph |
 
-	graph := IGCallGraphGenerator callGraph: IGTest class On: [ IGTest new sequencialMethod ].
-1 halt.
+	graph := IGCallGraphGenerator callGraph: IGMock On: [ IGMock new messageA: 1 ].
+
 	self assert: graph nodes equals: #()
 ]
