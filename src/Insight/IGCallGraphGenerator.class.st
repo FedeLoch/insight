@@ -13,9 +13,6 @@ IGCallGraphGenerator class >> callGraph: aClass On: aBlock [
 	
 	history := CallHistory new.
 
-	"IGAction do: [ :context | history push: context astNode ].
-	afterAction := IGAction do: [ :context | history pop: context astNode ].
-"
 	instrumentation := IGInstrumentation new addHooks: {
 		IGBeforeMethodHook new do: (BeforeHistoryAction history: history).
 		IGAfterMethodHook new do: (AfterHistoryAction history: history)

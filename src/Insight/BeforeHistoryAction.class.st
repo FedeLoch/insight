@@ -1,9 +1,6 @@
 Class {
 	#name : 'BeforeHistoryAction',
-	#superclass : 'IGDoAction',
-	#instVars : [
-		'history'
-	],
+	#superclass : 'CallGraphHistoryAction',
 	#category : 'Insight-Call Graph',
 	#package : 'Insight',
 	#tag : 'Call Graph'
@@ -19,16 +16,4 @@ BeforeHistoryAction class >> history: history [
 BeforeHistoryAction >> do: value [
 	
 	history push: value
-]
-
-{ #category : 'accessing' }
-BeforeHistoryAction >> history: aHistory [
-
-	history := aHistory
-]
-
-{ #category : 'as yet unclassified' }
-BeforeHistoryAction >> reificationForContext: context [
-
-	^ context astNode
 ]
