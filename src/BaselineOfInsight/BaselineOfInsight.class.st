@@ -10,7 +10,7 @@ BaselineOfInsight >> baseline: spec [
 
 	<baseline>
 	
-	spec baseline: 'IllimaniProfiler' with: [ spec repository: 'github://jordanmontt/illimani-memory-profiler:main' ].
+	spec baseline: 'MethodCallGraph' with: [ spec repository: 'github://jordanmontt/MethodCallGraph:main' ].
 	
-	spec package: 'Insight' with: [ spec requires: #( 'IllimaniProfiler' ) ]
+	spec package: 'Insight' with: [ spec requires: #( 'MethodCallGraph' ) ]
 ]

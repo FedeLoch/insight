@@ -18,5 +18,5 @@ IGCallGraphGenerator class >> callGraph: aClass On: aBlock [
 		IGAfterMethodHook new do: (AfterHistoryAction history: history)
 	}; instrumentClass: aClass during: aBlock.
 	
-	^ AllocationGraph from: history
+	^ MethodCallGraphProfiler from: history
 ]

@@ -24,5 +24,5 @@ CallGraphHistoryAction >> history: aHistory [
 { #category : 'as yet unclassified' }
 CallGraphHistoryAction >> reificationForContext: context [
 
-	^ context astNode 
+	^ context astNode
 ]
