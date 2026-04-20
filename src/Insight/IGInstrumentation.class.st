@@ -111,6 +111,20 @@ IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNod
 ]
 
 { #category : 'as yet unclassified' }
+IGInstrumentation >> rewriteMethod: method before: beforeNodes after: afterNodes [ 
+
+	| methodBody newNode |
+	
+	methodBody := method body.
+	newNode := OCSequenceNode statements: (beforeNodes asArray, { methodBody }, afterNodes asArray).
+	"TODO: should we replace the current method by a new one that call have a sequence with:
+		- beforeNodes
+		- call method: sameArgs
+		- afterNodes"
+	method replaceNode: methodBody withNode: newNode
+]
+
+{ #category : 'as yet unclassified' }
 IGInstrumentation >> rewriteNode: node with: operations [
 
 	| beforeNodes afterNodes wrapStatements wrappedNode newTempNodes |
@@ -135,6 +149,13 @@ IGInstrumentation >> rewriteNode: node with: operations [
 	"Assignment case"
 	node isAssignment ifTrue: [
 		self rewriteAssignment: node before: beforeNodes after: afterNodes wrapped: wrappedNode.
+		"RETURNING"
+		^ self
+	].
+
+	"Method case"
+	node isMethod ifTrue: [
+		self rewriteMethod: node before: beforeNodes after: afterNodes.
 		"RETURNING"
 		^ self
 	].
