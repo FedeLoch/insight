@@ -9,8 +9,13 @@ Class {
 BaselineOfInsight >> baseline: spec [
 
 	<baseline>
-	
-	spec baseline: 'MethodCallGraph' with: [ spec repository: 'github://jordanmontt/MethodCallGraph:main' ].
-	
-	spec package: 'Insight' with: [ spec requires: #( 'MethodCallGraph' ) ]
+	spec baseline: 'MethodCallGraph'
+		with: [
+		spec repository: 'github://jordanmontt/MethodCallGraph:main' ].
+
+	spec package: 'Insight'
+		with: [ spec requires: #( 'MethodCallGraph' ) ].
+
+	spec package: 'IGCodeCov'
+		with: [ spec requires: #( 'Insight' ) ]
 ]
