@@ -101,6 +101,16 @@ IGInstrumentation >> instrumentMethod: method during: blockToEval [
 ]
 
 { #category : 'as yet unclassified' }
+IGInstrumentation >> instrumentMethods: methodCollection during: blockToEval [
+
+	[
+		methodCollection do: [ :method | self instrumentMethod: method ].
+		blockToEval value
+		] ensure: [
+		methodCollection do: [ :method | self uninstrumentMethod: method ] ]
+]
+
+{ #category : 'as yet unclassified' }
 IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNodes wrapped: wrappedNode [
 
 	| newNodes |

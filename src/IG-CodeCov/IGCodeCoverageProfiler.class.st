@@ -14,6 +14,18 @@ Class {
 	#tag : 'IG-CodeCoverage'
 }
 
+{ #category : 'private' }
+IGCodeCoverageProfiler >> buildResultFor: aCollectionOfMethods [
+	"Populate an IGCoverageResult from the profiling"
+
+	| result |
+
+	result := IGCoverageResult new.
+	aCollectionOfMethods do: [ :eachMethod |
+		result addMethodCoverage: (self methodCoverageFor: eachMethod) ].
+	coverageResult := result
+]
+
 { #category : 'api' }
 IGCodeCoverageProfiler >> classesToInstrument: aCollection [
 	" Sugar for getting and instrumenting the methods from the classes."
@@ -55,6 +67,20 @@ IGCodeCoverageProfiler >> initialize [
 	coverageResult := IGCoverageResult new.
 ]
 
+{ #category : 'private' }
+IGCodeCoverageProfiler >> methodCoverageFor: aMethod [
+	"Build a IGMethodCoverage struct from the counter values"
+
+	| executedStatements |
+
+	executedStatements := IdentityDictionary new.
+	aMethod ast statements do: [ :eachNode |
+			executedStatements at: eachNode
+				put: (statementCounter countAt: eachNode)
+			].
+	^IGMethodCoverage method: aMethod executedStatements: executedStatements 
+]
+
 { #category : 'api' }
 IGCodeCoverageProfiler >> methodsToInstrument: aCollection [
 	"Register every method found in the collection for profiling.
@@ -64,4 +90,21 @@ IGCodeCoverageProfiler >> methodsToInstrument: aCollection [
 		each isCompiledMethod
 			ifTrue: [ methods add: each ]
 			ifFalse: [ self methodsToInstrument: each ] ]
+]
+
+{ #category : 'api' }
+IGCodeCoverageProfiler >> profileOn: aBlock [
+
+	| instrumentation statementHook uniqueMethods |
+
+	statementCounter := IGCounter new countKeyBy: #astNode.
+	statementHook := IGAfterStatementHook new do: statementCounter.
+
+	instrumentation := IGInstrumentation new addHook: statementHook.
+
+	uniqueMethods := methods asSet asArray.
+	instrumentation instrumentMethods: uniqueMethods
+		during: aBlock.
+
+	self buildResultFor: uniqueMethods
 ]
