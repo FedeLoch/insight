@@ -1,5 +1,5 @@
 "
-Coverage object that can expose the percentages of coverage of methods and has well as how many of them where fully covered.
+Coverage object that exposes method coverage percentages as well as how many of them were fully covered.
 "
 Class {
 	#name : 'IGCoverageResult',

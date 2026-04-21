@@ -16,6 +16,6 @@ BaselineOfInsight >> baseline: spec [
 	spec package: 'Insight'
 		with: [ spec requires: #( 'MethodCallGraph' ) ].
 
-	spec package: 'IGCodeCov'
+	spec package: 'IG-CodeCov'
 		with: [ spec requires: #( 'Insight' ) ]
 ]

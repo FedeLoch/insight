@@ -24,9 +24,9 @@ IGMethodCoverage >> executedStatements [
 ]
 
 { #category : 'accessing' }
-IGMethodCoverage >> executedStatements: aDictionnary [
+IGMethodCoverage >> executedStatements: aDictionary [
 
-	executedStatements := aDictionnary
+	executedStatements := aDictionary
 ]
 
 { #category : 'querying' }

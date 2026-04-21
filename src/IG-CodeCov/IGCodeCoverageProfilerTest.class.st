@@ -54,7 +54,7 @@ IGCodeCoverageProfilerTest >> testClassesToInstrumentAcceptsNestedCollections [
 ]
 
 { #category : 'tests - classes' }
-IGCodeCoverageProfilerTest >> testClassestoInstrumentCoversAllDefinedMethod [
+IGCodeCoverageProfilerTest >> testClassesToInstrumentCoversAllDefinedMethods [
 
 	| profiler |
 

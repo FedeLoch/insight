@@ -1,5 +1,5 @@
 "
-Statement level code coverage profiler that can instrument methods and clasess, execute a block of code, and produce a structured coverage report.
+Statement level code coverage profiler that can instrument methods and classes, execute a block of code, and produce a structured coverage report.
 "
 Class {
 	#name : 'IGCodeCoverageProfiler',
