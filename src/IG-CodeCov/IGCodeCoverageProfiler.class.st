@@ -81,6 +81,12 @@ IGCodeCoverageProfiler >> methodCoverageFor: aMethod [
 	^IGMethodCoverage method: aMethod executedStatements: executedStatements 
 ]
 
+{ #category : 'private - accessing' }
+IGCodeCoverageProfiler >> methods [
+
+	^methods
+]
+
 { #category : 'api' }
 IGCodeCoverageProfiler >> methodsToInstrument: aCollection [
 	"Register every method found in the collection for profiling.
