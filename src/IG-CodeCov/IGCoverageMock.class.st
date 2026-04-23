@@ -7,15 +7,16 @@ Class {
 }
 
 { #category : 'dummy methods' }
+IGCoverageMock >> callSubMethod [
+
+    self oneStatement.
+    self twoStatements
+]
+
+{ #category : 'dummy methods' }
 IGCoverageMock >> emptyMethod [
 
 	
-]
-
-{ #category : 'initialization' }
-IGCoverageMock >> initialize [
-
-	super initialize
 ]
 
 { #category : 'dummy methods' }

@@ -5,7 +5,7 @@ Class {
 	#name : 'IGCodeCoverageProfiler',
 	#superclass : 'Object',
 	#instVars : [
-		'methods',
+		'instrumentedMethods',
 		'coverageResult',
 		'statementCounter'
 	],
@@ -15,6 +15,13 @@ Class {
 }
 
 { #category : 'private' }
+IGCodeCoverageProfiler >> buildMethodCoverageRecordFor: aMethod [
+	"Build a IGMethodCoverageRecord struct from the counter values"
+
+	^IGMethodCoverageRecord for: aMethod executedStatements: (self getExectutedStatementsFor: aMethod)
+]
+
+{ #category : 'private' }
 IGCodeCoverageProfiler >> buildResultFor: aCollectionOfMethods [
 	"Populate an IGCoverageResult from the profiling"
 
@@ -22,18 +29,15 @@ IGCodeCoverageProfiler >> buildResultFor: aCollectionOfMethods [
 
 	result := IGCoverageResult new.
 	aCollectionOfMethods do: [ :eachMethod |
-		result addMethodCoverage: (self methodCoverageFor: eachMethod) ].
-	coverageResult := result
+		result addRecord: (self buildMethodCoverageRecordFor: eachMethod) ].
+	^ result
 ]
 
 { #category : 'api' }
-IGCodeCoverageProfiler >> classesToInstrument: aCollection [
+IGCodeCoverageProfiler >> classesToInstrument: aCollectionOfClasses [
 	" Sugar for getting and instrumenting the methods from the classes."
 
-	| flattenClasses |
-
-	flattenClasses := self flattenClassesFrom: aCollection.
-	self methodsToInstrument: (flattenClasses flatCollect: #definedMethods)
+	self methodsToInstrument: (aCollectionOfClasses flattened collect: #definedMethods)
 ]
 
 { #category : 'accessing' }
@@ -43,20 +47,17 @@ IGCodeCoverageProfiler >> coverageResult [
 ]
 
 { #category : 'private' }
-IGCodeCoverageProfiler >> flattenClassesFrom: aCollection [
+IGCodeCoverageProfiler >> getExectutedStatementsFor: aMethod [
+    "Get the counter values for each statement in the method and return them as an IdentityDictionary keyed by the AST node."
 
-	| flattenedCollection |
+    | executedStatements |
 
-	flattenedCollection := OrderedCollection new.
-
-	aCollection do: [ :each |
-			each isClass ifTrue: [ flattenedCollection add: each ]
-				ifFalse: [
-						flattenedCollection
-							addAll: (self flattenClassesFrom: each)
-						]
-			].
-	^flattenedCollection
+    executedStatements := IdentityDictionary new.
+    aMethod ast statements do: [ :eachNode |
+            executedStatements at: eachNode
+                put: (statementCounter countAt: eachNode)
+            ].
+    ^ executedStatements
 ]
 
 { #category : 'initialization' }
@@ -64,38 +65,24 @@ IGCodeCoverageProfiler >> initialize [
 
 	super initialize.
 	methods := OrderedCollection new.
+    "In case the result is requested before any profiling has been done"
 	coverageResult := IGCoverageResult new.
 ]
 
-{ #category : 'private' }
-IGCodeCoverageProfiler >> methodCoverageFor: aMethod [
-	"Build a IGMethodCoverage struct from the counter values"
-
-	| executedStatements |
-
-	executedStatements := IdentityDictionary new.
-	aMethod ast statements do: [ :eachNode |
-			executedStatements at: eachNode
-				put: (statementCounter countAt: eachNode)
-			].
-	^IGMethodCoverage method: aMethod executedStatements: executedStatements 
-]
-
 { #category : 'private - accessing' }
-IGCodeCoverageProfiler >> methods [
+IGCodeCoverageProfiler >> instrumentedMethods [
 
-	^methods
+	^instrumentedMethods
 ]
 
 { #category : 'api' }
-IGCodeCoverageProfiler >> methodsToInstrument: aCollection [
+IGCodeCoverageProfiler >> methodsToInstrument: aCollectionOfMethods [
 	"Register every method found in the collection for profiling.
 	The collection may be nested"
 
-	aCollection do: [ :each|
-		each isCompiledMethod
-			ifTrue: [ methods add: each ]
-			ifFalse: [ self methodsToInstrument: each ] ]
+    aCollectionOfMethods flattened do: [ :eachMethod |
+        instrumentedMethods add: eachMethod.
+    ].
 ]
 
 { #category : 'api' }
@@ -108,9 +95,9 @@ IGCodeCoverageProfiler >> profileOn: aBlock [
 
 	instrumentation := IGInstrumentation new addHook: statementHook.
 
-	uniqueMethods := methods asSet asArray.
+	uniqueMethods := instrumentedMethods asSet asArray.
 	instrumentation instrumentMethods: uniqueMethods
 		during: aBlock.
 
-	self buildResultFor: uniqueMethods
+	coverageResult := self buildResultFor: uniqueMethods
 ]

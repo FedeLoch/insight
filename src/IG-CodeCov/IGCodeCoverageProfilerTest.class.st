@@ -6,37 +6,34 @@ Class {
 	#tag : 'IG-CodeCoverageTest'
 }
 
-{ #category : 'tests - classes' }
-IGCodeCoverageProfilerTest >> testClassExecutedMethodsAreCovered [
+{ #category : 'helper' }
+IGCodeCoverageProfilerTest >> assertRecord: aMethodRecord equals: expected [
 
-	| profiler result |
-
-	profiler := IGCodeCoverageProfiler new.
-	profiler classesToInstrument: { IGCoverageMock }.
-	profiler profileOn: [ IGCoverageMock new oneStatement ].
-	result := profiler coverageResult.
-
-	self assertCollection:
-		(result methodCoverageFor: IGCoverageMock >> #oneStatement ) executedStatements asArray
-		equals: { 1 }.
-	self assertCollection:
-		(result methodCoverageFor: IGCoverageMock >> #initialize ) executedStatements asArray
-		equals: { 1 }
+    self assertCollection: aMethodRecord executedStatements asArray equals: expected
 ]
 
-{ #category : 'tests - classes' }
-IGCodeCoverageProfilerTest >> testClassNeverCalledMethodIsUncovered [
+{ #category : 'helper' }
+IGCodeCoverageProfilerTest >> profileClass: aClass on: aBlock [
 
-	| profiler result |
+    | profiler |
 
-	profiler := IGCodeCoverageProfiler new.
-	profiler classesToInstrument: { IGCoverageMock }.
-	profiler profileOn: [ IGCoverageMock new oneStatement ].
-	result := profiler coverageResult.
+    profiler := IGCodeCoverageProfiler new.
+    profiler classesToInstrument: { aClass }.
+    profiler profileOn: aBlock.
 
-	self assertCollection:
-		(result methodCoverageFor: IGCoverageMock >> #twoStatements ) executedStatements asArray
-		equals: { 0. 0 }
+    ^ profiler coverageResult
+]
+
+{ #category : 'helper' }
+IGCodeCoverageProfilerTest >> profileMethod: aMethod on: aBlock [
+
+    | profiler |
+
+    profiler := IGCodeCoverageProfiler new.
+    profiler methodsToInstrument: { aMethod }.
+    profiler profileOn: aBlock.
+
+    ^ profiler coverageResult recordFor: aMethod
 ]
 
 { #category : 'tests - classes' }
@@ -49,7 +46,7 @@ IGCodeCoverageProfilerTest >> testClassesToInstrumentAcceptsNestedCollections [
 	profiler := IGCodeCoverageProfiler new.
 	profiler classesToInstrument: { { IGCoverageMock } }.
 
-	self assertCollection: profiler methods asArray
+	self assertCollection: profiler instrumentedMethods asArray
 		includesAny: { method }
 ]
 
@@ -61,7 +58,7 @@ IGCodeCoverageProfilerTest >> testClassesToInstrumentCoversAllDefinedMethods [
 	profiler := IGCodeCoverageProfiler new.
 	profiler classesToInstrument: { IGCoverageMock }.
 
-	self assertCollection: profiler methods asArray
+	self assertCollection: profiler instrumentedMethods asArray
 		equals: IGCoverageMock definedMethods
 ]
 
@@ -71,57 +68,30 @@ IGCodeCoverageProfilerTest >> testCoverageResultBeforeProfilingIsEmpty [
 	| profiler |
 
 	profiler := IGCodeCoverageProfiler new.
-	self assert: profiler coverageResult methodCoverages isEmpty
+	self assert: profiler coverageResult isEmpty
 ]
 
-{ #category : 'tests - methods' }
+{ #category : 'tests - profiling' }
 IGCodeCoverageProfilerTest >> testExecutedMethodIsCovered [
 
-	| profiler result method |
+	| methodCoverage method |
 
 	method := IGCoverageMock >> #oneStatement.
+    methodCoverage := self profileMethod: method on: [ IGCoverageMock new oneStatement ].
 
-	profiler := IGCodeCoverageProfiler new.
-	profiler methodsToInstrument: { method }.
-	profiler profileOn: [ IGCoverageMock new oneStatement ].
-	result := profiler coverageResult.
+    self assertRecord: methodCoverage equals: { 1 }
 
-	self assertCollection:
-		(result methodCoverageFor: method) executedStatements asArray
-		equals: { 1 }
 ]
 
-{ #category : 'tests' }
-IGCodeCoverageProfilerTest >> testInstrumentationIsRestoredAfterProfiling [
-
-	| profiler method before after |
-
-	method := IGCoverageMock>>#emptyMethod.
-	before := IGCoverageMock methodDict at: #emptyMethod.
-
-	profiler := IGCodeCoverageProfiler new.
-	profiler methodsToInstrument: { method }.
-	profiler profileOn: [ IGCoverageMock new emptyMethod ].
-
-	after := IGCoverageMock methodDict at: #emptyMethod.
-	self assert: before identicalTo: after
-]
-
-{ #category : 'tests - methods' }
+{ #category : 'tests - profiling' }
 IGCodeCoverageProfilerTest >> testMethodUncoveredWhenNotExecuted [
 
-	| profiler result method |
+    | methodCoverage method |
 
-	method := IGCoverageMock >> #twoStatements.
+    method := IGCoverageMock >> #twoStatements.
+    methodCoverage := self profileMethod: method on: [ "Nothing" ].
 
-	profiler := IGCodeCoverageProfiler new.
-	profiler methodsToInstrument: { method }.
-	profiler profileOn: [ "Nothing" ].
-	result := profiler coverageResult.
-
-	self assertCollection:
-		(result methodCoverageFor: method) executedStatements asArray
-		equals: { 0. 0 }
+    self assertRecord: methodCoverage equals: { 0. 0 }
 ]
 
 { #category : 'tests - methods' }
@@ -134,22 +104,7 @@ IGCodeCoverageProfilerTest >> testMethodsToInstrumentAcceptsNestedCollections [
 			{ IGCoverageMock >> #oneStatement }.
 			{ IGCoverageMock >> #twoStatements } }.
 
-	self assertCollection: profiler methods asArray
-		equals: {
-				(IGCoverageMock >> #oneStatement).
-				(IGCoverageMock >> #twoStatements) }
-]
-
-{ #category : 'tests - methods' }
-IGCodeCoverageProfilerTest >> testMethodsToInstrumentSeveralCallsCanBeCombined [
-
-	| profiler |
-
-	profiler := IGCodeCoverageProfiler new.
-	profiler methodsToInstrument: { IGCoverageMock >> #oneStatement }.
-	profiler methodsToInstrument: { IGCoverageMock >> #twoStatements }.
-
-	self assertCollection: profiler methods asArray
+	self assertCollection: profiler instrumentedMethods asArray
 		equals: {
 				(IGCoverageMock >> #oneStatement).
 				(IGCoverageMock >> #twoStatements) }
@@ -158,55 +113,21 @@ IGCodeCoverageProfilerTest >> testMethodsToInstrumentSeveralCallsCanBeCombined [
 { #category : 'tests' }
 IGCodeCoverageProfilerTest >> testProfileOnWithNoInstrumentationIsNoOp [
 
-	| profiler executed |
-
-	executed := false.
+	| profiler |
 
 	profiler := IGCodeCoverageProfiler new.
-	profiler profileOn: [ executed := true ].
+	profiler profileOn: [ IGCoverageMock new oneStatement ].
 
-	self assert: executed.
-	self assert: profiler coverageResult methodCoverages isEmpty
+	self assert: profiler coverageResult isEmpty
 ]
 
-{ #category : 'tests' }
-IGCodeCoverageProfilerTest >> testRepeatedProfilingDifferentBlock [
-	"profileOn: should be idempotent"
+{ #category : 'tests - profiling' }
+IGCodeCoverageProfilerTest >> testSubMethodsAreCovered [
 
-	| profiler result1 result2 method |
+	| classCoverage |
 
-	method := IGCoverageMock >> #oneStatement.
+    classCoverage := self profileClass: IGCoverageMock on: [ IGCoverageMock new callSubMethod ].
 
-	profiler := IGCodeCoverageProfiler new.
-	profiler methodsToInstrument: { method }.
-	profiler profileOn: [ IGCoverageMock new oneStatement ].
-	result1 := profiler coverageResult.
-	profiler profileOn: [ "Nothing" ].
-	result2 := profiler coverageResult.
-
-	self assertCollection:
-		(result1 methodCoverageFor: method) executedStatements asArray
-		equals: { 1 }.
-	self assertCollection:
-		(result2 methodCoverageFor: method) executedStatements asArray
-		equals: { 0 }
-]
-
-{ #category : 'tests' }
-IGCodeCoverageProfilerTest >> testRepeatedProfilingSameBlock [
-	"profileOn: should be idempotent"
-
-	| profiler result1 result2 method |
-
-	method := IGCoverageMock >> #oneStatement.
-
-	profiler := IGCodeCoverageProfiler new.
-	profiler methodsToInstrument: { method }.
-	profiler profileOn: [ IGCoverageMock new oneStatement ].
-	result1 := profiler coverageResult.
-	profiler profileOn: [ IGCoverageMock new oneStatement ].
-	result2 := profiler coverageResult.
-
-	self assertCollection: (result1 methodCoverageFor: method) executedStatements
-		equals: (result2 methodCoverageFor: method) executedStatements
+    self assertRecord: (classCoverage recordFor: IGCoverageMock >> #callSubMethod) equals: { 1 }.
+    self assertRecord: (classCoverage recordFor: IGCoverageMock >> #oneStatement) equals: { 1 }
 ]

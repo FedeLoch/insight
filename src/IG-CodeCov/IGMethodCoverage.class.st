@@ -1,5 +1,5 @@
 Class {
-	#name : 'IGMethodCoverage',
+	#name : 'IGMethodCoverageRecord',
 	#superclass : 'Object',
 	#instVars : [
 		'method',
@@ -11,46 +11,39 @@ Class {
 }
 
 { #category : 'instance creation' }
-IGMethodCoverage class >> method: aMethod executedStatements: aDictionary [
+IGMethodCoverageRecord class >> for: aMethod executedStatements: aDictionary [
 
 	^self new
 		 method: aMethod; executedStatements: aDictionary; yourself
 ]
 
 { #category : 'accessing' }
-IGMethodCoverage >> executedStatements [
+IGMethodCoverageRecord >> executedStatements [
 
 	^executedStatements
 ]
 
 { #category : 'accessing' }
-IGMethodCoverage >> executedStatements: aDictionary [
+IGMethodCoverageRecord >> executedStatements: aCollectionOfStatementNodes [
 
-	executedStatements := aDictionary
+	executedStatements := aCollectionOfStatementNodes
 ]
 
 { #category : 'querying' }
-IGMethodCoverage >> executionCountFor: aNode [
+IGMethodCoverageRecord >> executionCountFor: aStatementNode [
 
-	^executedStatements at: aNode
-		 ifAbsent: [ 0 ]
-]
-
-{ #category : 'initialization' }
-IGMethodCoverage >> initialize [
-
-	super initialize.
-	executedStatements := IdentityDictionary new
+	^executedStatements at: aStatementNode ifAbsent: [
+        self error: ('This node {1} is not a statement of the method {2}.' format: { aStatementNode printString. method printString }) ]
 ]
 
 { #category : 'accessing' }
-IGMethodCoverage >> method [
+IGMethodCoverageRecord >> method [
 
 	^method
 ]
 
 { #category : 'accessing' }
-IGMethodCoverage >> method: aMethod [
+IGMethodCoverageRecord >> method: aMethod [
 
 	method := aMethod
 ]

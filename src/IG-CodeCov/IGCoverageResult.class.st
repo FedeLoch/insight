@@ -5,7 +5,7 @@ Class {
 	#name : 'IGCoverageResult',
 	#superclass : 'Object',
 	#instVars : [
-		'methodCoverages'
+		'methodRecordDictionary'
 	],
 	#category : 'IG-CodeCov-IG-CodeCoverage',
 	#package : 'IG-CodeCov',
@@ -13,34 +13,42 @@ Class {
 }
 
 { #category : 'adding' }
-IGCoverageResult >> addMethodCoverage: anIGMethodCoverage [
+IGCoverageResult >> addRecord: anIGMethodCoverageRecord [
 
-	methodCoverages at: anIGMethodCoverage method put: anIGMethodCoverage
+	methodRecordDictionary at: anIGMethodCoverageRecord method put: anIGMethodCoverageRecord
 ]
 
 { #category : 'initialization' }
 IGCoverageResult >> initialize [
 
 	super initialize.
-	methodCoverages := IdentityDictionary new
+    "The key is the method, not its symbol.
+    This allows method of the same name to be recorded separately."
+	methodRecordDictionary := IdentityDictionary new
+]
+
+{ #category : 'querying' }
+IGCoverageResult >> isEmpty [
+
+    ^ methodRecordDictionary isEmpty
 ]
 
 { #category : 'accessing' }
-IGCoverageResult >> methodCoverageFor: aMethod [
+IGCoverageResult >> recordFor: aMethod [
 	"Raise an error if the method isn't present"
 
-	^ methodCoverages at: aMethod ifAbsent: [
+	^ methodRecordDictionary at: aMethod ifAbsent: [
 		self error: ('Method {1} is not present.' format: { aMethod printString }) ]
 ]
 
 { #category : 'accessing' }
-IGCoverageResult >> methodCoverages [
+IGCoverageResult >> methodRecordDictionary [
 
-	^ methodCoverages values
+    ^ methodRecordDictionary
 ]
 
-{ #category : 'accessing' }
-IGCoverageResult >> numberOfMethods [
+{ #category : 'querying' }
+IGCoverageResult >> numberOfRecordedMethods [
 
-	^methodCoverages size
+    ^ methodRecordDictionary size
 ]
