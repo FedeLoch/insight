@@ -317,19 +317,22 @@ IGTest >> testInstrumentBeforeReturn [
 { #category : 'methods tests' }
 IGTest >> testMethodIsCorrectlyUninstrumented [
 
-    | counter afterHook methodToInstrument uninstrumentedMethod |
+	| counter afterHook methodToInstrument uninstrumentedMethod |
 
-    counter := IGCounter new.
-    afterHook := IGAfterStatementHook new do: counter.
-    methodToInstrument := IGTest >> #incrementingTvariable.
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	methodToInstrument := IGTest >> #incrementingTvariable.
 
-    IGInstrumentation new addHook: afterHook instrumentMethod: methodToInstrument during: [ self incrementingTvariable ].
-    uninstrumentedMethod := IGTest >> #incrementingTvariable.
+	IGInstrumentation new addHook: afterHook;
+		instrumentMethod: methodToInstrument
+		during: [ self incrementingTvariable ].
+	uninstrumentedMethod := IGTest >> #incrementingTvariable.
 
-    self assert: methodToInstrument identicalTo: uninstrumentedMethod.
-    "WIP: ensure that the method is exaclty the same
-    through a static rarepresentation of it (per @jordanmontt requirements)"
-    self assert false.
+	self assert: methodToInstrument
+		identicalTo: uninstrumentedMethod.
+	"WIP: ensure that the method is exaclty the same
+   through a static representation of it (per @jordanmontt requirements)"
+	self assert: false
 ]
 
 { #category : 'method tests' }

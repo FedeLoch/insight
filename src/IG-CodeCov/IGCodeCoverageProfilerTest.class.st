@@ -9,31 +9,32 @@ Class {
 { #category : 'helper' }
 IGCodeCoverageProfilerTest >> assertRecord: aMethodRecord equals: expected [
 
-    self assertCollection: aMethodRecord executedStatements asArray equals: expected
+	self assertCollection: aMethodRecord executedStatements asArray
+		equals: expected
 ]
 
 { #category : 'helper' }
 IGCodeCoverageProfilerTest >> profileClass: aClass on: aBlock [
 
-    | profiler |
+	| profiler |
 
-    profiler := IGCodeCoverageProfiler new.
-    profiler classesToInstrument: { aClass }.
-    profiler profileOn: aBlock.
+	profiler := IGCodeCoverageProfiler new.
+	profiler classesToInstrument: { aClass }.
+	profiler profileOn: aBlock.
 
-    ^ profiler coverageResult
+	^profiler coverageResult
 ]
 
 { #category : 'helper' }
 IGCodeCoverageProfilerTest >> profileMethod: aMethod on: aBlock [
 
-    | profiler |
+	| profiler |
 
-    profiler := IGCodeCoverageProfiler new.
-    profiler methodsToInstrument: { aMethod }.
-    profiler profileOn: aBlock.
+	profiler := IGCodeCoverageProfiler new.
+	profiler methodsToInstrument: { aMethod }.
+	profiler profileOn: aBlock.
 
-    ^ profiler coverageResult recordFor: aMethod
+	^profiler coverageResult recordFor: aMethod
 ]
 
 { #category : 'tests - classes' }
@@ -77,21 +78,24 @@ IGCodeCoverageProfilerTest >> testExecutedMethodIsCovered [
 	| methodCoverage method |
 
 	method := IGCoverageMock >> #oneStatement.
-    methodCoverage := self profileMethod: method on: [ IGCoverageMock new oneStatement ].
+	methodCoverage := self profileMethod: method
+		                  on: [ IGCoverageMock new oneStatement ].
 
-    self assertRecord: methodCoverage equals: { 1 }
-
+	self assertRecord: methodCoverage
+		equals: { 1 }
 ]
 
 { #category : 'tests - profiling' }
 IGCodeCoverageProfilerTest >> testMethodUncoveredWhenNotExecuted [
 
-    | methodCoverage method |
+	| methodCoverage method |
 
-    method := IGCoverageMock >> #twoStatements.
-    methodCoverage := self profileMethod: method on: [ "Nothing" ].
+	method := IGCoverageMock >> #twoStatements.
+	methodCoverage := self profileMethod: method
+		                  on: [ "Nothing" ].
 
-    self assertRecord: methodCoverage equals: { 0. 0 }
+	self assertRecord: methodCoverage
+		equals: { 0. 0 }
 ]
 
 { #category : 'tests - methods' }
@@ -101,8 +105,8 @@ IGCodeCoverageProfilerTest >> testMethodsToInstrumentAcceptsNestedCollections [
 
 	profiler := IGCodeCoverageProfiler new.
 	profiler methodsToInstrument: {
-			{ IGCoverageMock >> #oneStatement }.
-			{ IGCoverageMock >> #twoStatements } }.
+			{ (IGCoverageMock >> #oneStatement) }.
+			{ (IGCoverageMock >> #twoStatements) } }.
 
 	self assertCollection: profiler instrumentedMethods asArray
 		equals: {
@@ -126,8 +130,13 @@ IGCodeCoverageProfilerTest >> testSubMethodsAreCovered [
 
 	| classCoverage |
 
-    classCoverage := self profileClass: IGCoverageMock on: [ IGCoverageMock new callSubMethod ].
+	classCoverage := self profileClass: IGCoverageMock
+		                 on: [ IGCoverageMock new callSubMethod ].
 
-    self assertRecord: (classCoverage recordFor: IGCoverageMock >> #callSubMethod) equals: { 1 }.
-    self assertRecord: (classCoverage recordFor: IGCoverageMock >> #oneStatement) equals: { 1 }
+	self assertRecord:
+		(classCoverage recordFor: IGCoverageMock >> #callSubMethod)
+		equals: { 1. 1 }.
+	self assertRecord:
+		(classCoverage recordFor: IGCoverageMock >> #oneStatement)
+		equals: { 1 }
 ]

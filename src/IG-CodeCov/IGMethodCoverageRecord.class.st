@@ -32,8 +32,14 @@ IGMethodCoverageRecord >> executedStatements: aCollectionOfStatementNodes [
 { #category : 'querying' }
 IGMethodCoverageRecord >> executionCountFor: aStatementNode [
 
-	^executedStatements at: aStatementNode ifAbsent: [
-        self error: ('This node {1} is not a statement of the method {2}.' format: { aStatementNode printString. method printString }) ]
+	^executedStatements at: aStatementNode
+		 ifAbsent: [
+				 self error:
+					 ('This node {1} is not a statement of the method {2}.' format:
+						  {
+							  aStatementNode printString.
+							  method printString })
+				 ]
 ]
 
 { #category : 'accessing' }

@@ -15,14 +15,15 @@ Class {
 { #category : 'adding' }
 IGCoverageResult >> addRecord: anIGMethodCoverageRecord [
 
-	methodRecordDictionary at: anIGMethodCoverageRecord method put: anIGMethodCoverageRecord
+	methodRecordDictionary at: anIGMethodCoverageRecord method
+		put: anIGMethodCoverageRecord
 ]
 
 { #category : 'initialization' }
 IGCoverageResult >> initialize [
 
 	super initialize.
-    "The key is the method, not its symbol.
+	"The key is the method, not its symbol.
     This allows method of the same name to be recorded separately."
 	methodRecordDictionary := IdentityDictionary new
 ]
@@ -30,15 +31,7 @@ IGCoverageResult >> initialize [
 { #category : 'querying' }
 IGCoverageResult >> isEmpty [
 
-    ^ methodRecordDictionary isEmpty
-]
-
-{ #category : 'accessing' }
-IGCoverageResult >> recordFor: aMethod [
-	"Raise an error if the method isn't present"
-
-	^ methodRecordDictionary at: aMethod ifAbsent: [
-		self error: ('Method {1} is not present.' format: { aMethod printString }) ]
+	^methodRecordDictionary isEmpty
 ]
 
 { #category : 'accessing' }
@@ -51,4 +44,15 @@ IGCoverageResult >> methodRecordDictionary [
 IGCoverageResult >> numberOfRecordedMethods [
 
     ^ methodRecordDictionary size
+]
+
+{ #category : 'accessing' }
+IGCoverageResult >> recordFor: aMethod [
+	"Raise an error if the method isn't present"
+
+	^methodRecordDictionary at: aMethod
+		 ifAbsent: [
+				 self error:
+					 ('Method {1} is not present.' format: { aMethod printString })
+				 ]
 ]

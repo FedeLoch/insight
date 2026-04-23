@@ -9,14 +9,12 @@ Class {
 { #category : 'dummy methods' }
 IGCoverageMock >> callSubMethod [
 
-    self oneStatement.
-    self twoStatements
+	self oneStatement.
+	self twoStatements
 ]
 
 { #category : 'dummy methods' }
 IGCoverageMock >> emptyMethod [
-
-	
 ]
 
 { #category : 'dummy methods' }
