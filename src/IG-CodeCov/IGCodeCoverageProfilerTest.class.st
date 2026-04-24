@@ -38,20 +38,6 @@ IGCodeCoverageProfilerTest >> profileMethod: aMethod on: aBlock [
 ]
 
 { #category : 'tests - classes' }
-IGCodeCoverageProfilerTest >> testClassesToInstrumentAcceptsNestedCollections [
-
-	| profiler method |
-
-	method := IGCoverageMock >> #emptyMethod.
-
-	profiler := IGCodeCoverageProfiler new.
-	profiler classesToInstrument: { { IGCoverageMock } }.
-
-	self assertCollection: profiler instrumentedMethods asArray
-		includesAny: { method }
-]
-
-{ #category : 'tests - classes' }
 IGCodeCoverageProfilerTest >> testClassesToInstrumentCoversAllDefinedMethods [
 
 	| profiler |
@@ -59,8 +45,8 @@ IGCodeCoverageProfilerTest >> testClassesToInstrumentCoversAllDefinedMethods [
 	profiler := IGCodeCoverageProfiler new.
 	profiler classesToInstrument: { IGCoverageMock }.
 
-	self assertCollection: profiler instrumentedMethods asArray
-		equals: IGCoverageMock definedMethods
+	self assertCollection: profiler instrumentedMethods
+		hasSameElements: IGCoverageMock definedMethods
 ]
 
 { #category : 'tests' }
@@ -96,22 +82,6 @@ IGCodeCoverageProfilerTest >> testMethodUncoveredWhenNotExecuted [
 
 	self assertRecord: methodCoverage
 		equals: { 0. 0 }
-]
-
-{ #category : 'tests - methods' }
-IGCodeCoverageProfilerTest >> testMethodsToInstrumentAcceptsNestedCollections [
-
-	| profiler |
-
-	profiler := IGCodeCoverageProfiler new.
-	profiler methodsToInstrument: {
-			{ (IGCoverageMock >> #oneStatement) }.
-			{ (IGCoverageMock >> #twoStatements) } }.
-
-	self assertCollection: profiler instrumentedMethods asArray
-		equals: {
-				(IGCoverageMock >> #oneStatement).
-				(IGCoverageMock >> #twoStatements) }
 ]
 
 { #category : 'tests' }

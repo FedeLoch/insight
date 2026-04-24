@@ -14,6 +14,13 @@ IGCoverageMock >> callSubMethod [
 ]
 
 { #category : 'dummy methods' }
+IGCoverageMock >> conditionalMethodAAA: aBoolean [
+
+	^aBoolean ifTrue: [ 67 ]
+		 ifFalse: [ 42 ]
+]
+
+{ #category : 'dummy methods' }
 IGCoverageMock >> emptyMethod [
 ]
 

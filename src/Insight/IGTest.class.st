@@ -323,16 +323,31 @@ IGTest >> testMethodIsCorrectlyUninstrumented [
 	afterHook := IGAfterStatementHook new do: counter.
 	methodToInstrument := IGTest >> #incrementingTvariable.
 
-	IGInstrumentation new addHook: afterHook;
-		instrumentMethod: methodToInstrument
-		during: [ self incrementingTvariable ].
+
+	IGInstrumentation new
+		addHook: afterHook; instrumentMethod: methodToInstrument; uninstrumentMethod: methodToInstrument.
+
 	uninstrumentedMethod := IGTest >> #incrementingTvariable.
 
-	self assert: methodToInstrument
-		identicalTo: uninstrumentedMethod.
-	"WIP: ensure that the method is exaclty the same
-   through a static representation of it (per @jordanmontt requirements)"
-	self assert: false
+	self assertCollection: methodToInstrument bytecodes equals: uninstrumentedMethod bytecodes.
+]
+
+{ #category : 'methods tests' }
+IGTest >> testMethodIsInstrumented [
+
+	| counter afterHook uninstrumentedMethod instrumentedMethod instrumentation |
+
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	uninstrumentedMethod := IGTest >> #incrementingTvariable.
+
+	instrumentation := IGInstrumentation new.
+	instrumentation addHook: afterHook; instrumentMethod: uninstrumentedMethod.
+	self incrementingTvariable .
+	instrumentedMethod := IGTest >> #incrementingTvariable.
+	instrumentation uninstrumentMethod: uninstrumentedMethod .
+
+	self denyCollection: uninstrumentedMethod bytecodes equals: instrumentedMethod bytecodes.
 ]
 
 { #category : 'method tests' }

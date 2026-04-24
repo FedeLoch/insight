@@ -39,7 +39,7 @@ IGCodeCoverageProfiler >> classesToInstrument: aCollectionOfClasses [
 	" Sugar for getting and instrumenting the methods from the classes."
 
 	self methodsToInstrument:
-		(aCollectionOfClasses flattened collect: #definedMethods)
+		(aCollectionOfClasses flatCollect: #definedMethods)
 ]
 
 { #category : 'accessing' }
@@ -66,7 +66,7 @@ IGCodeCoverageProfiler >> getExectutedStatementsFor: aMethod [
 IGCodeCoverageProfiler >> initialize [
 
 	super initialize.
-	instrumentedMethods := OrderedCollection new.
+	instrumentedMethods := Set new.
 	"In case the result is requested before any profiling has been done"
 	coverageResult := IGCoverageResult new
 ]
@@ -79,26 +79,23 @@ IGCodeCoverageProfiler >> instrumentedMethods [
 
 { #category : 'api' }
 IGCodeCoverageProfiler >> methodsToInstrument: aCollectionOfMethods [
-	"Register every method found in the collection for profiling.
-	The collection may be nested"
+	"Register every method found in the collection for profiling."
 
-	instrumentedMethods addAll:
-		(aCollectionOfMethods flattened collect: [ :eachMethod | eachMethod ])
+	instrumentedMethods addAll: aCollectionOfMethods
 ]
 
 { #category : 'api' }
 IGCodeCoverageProfiler >> profileOn: aBlock [
 
-	| instrumentation statementHook uniqueMethods |
+	| instrumentation statementHook |
 
 	statementCounter := IGCounter new countKeyBy: #astNode.
 	statementHook := IGAfterStatementHook new do: statementCounter.
 
 	instrumentation := IGInstrumentation new addHook: statementHook.
 
-	uniqueMethods := instrumentedMethods asSet asArray.
-	instrumentation instrumentMethods: uniqueMethods
+	instrumentation instrumentMethods: instrumentedMethods
 		during: aBlock.
 
-	coverageResult := self buildResultFor: uniqueMethods
+	coverageResult := self buildResultFor: instrumentedMethods
 ]
