@@ -314,6 +314,42 @@ IGTest >> testInstrumentBeforeReturn [
 	]
 ]
 
+{ #category : 'methods tests' }
+IGTest >> testMethodIsCorrectlyUninstrumented [
+
+	| counter afterHook methodToInstrument uninstrumentedMethod |
+
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	methodToInstrument := IGTest >> #incrementingTvariable.
+
+
+	IGInstrumentation new
+		addHook: afterHook; instrumentMethod: methodToInstrument; uninstrumentMethod: methodToInstrument.
+
+	uninstrumentedMethod := IGTest >> #incrementingTvariable.
+
+	self assertCollection: methodToInstrument bytecodes equals: uninstrumentedMethod bytecodes.
+]
+
+{ #category : 'methods tests' }
+IGTest >> testMethodIsInstrumented [
+
+	| counter afterHook uninstrumentedMethod instrumentedMethod instrumentation |
+
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	uninstrumentedMethod := IGTest >> #incrementingTvariable.
+
+	instrumentation := IGInstrumentation new.
+	instrumentation addHook: afterHook; instrumentMethod: uninstrumentedMethod.
+	self incrementingTvariable .
+	instrumentedMethod := IGTest >> #incrementingTvariable.
+	instrumentation uninstrumentMethod: uninstrumentedMethod .
+
+	self denyCollection: uninstrumentedMethod bytecodes equals: instrumentedMethod bytecodes.
+]
+
 { #category : 'method tests' }
 IGTest >> testRecursiveMethodAccumulatesCount [
 

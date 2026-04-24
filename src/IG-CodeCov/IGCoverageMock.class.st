@@ -7,15 +7,21 @@ Class {
 }
 
 { #category : 'dummy methods' }
-IGCoverageMock >> emptyMethod [
+IGCoverageMock >> callSubMethod [
 
-	
+	self oneStatement.
+	self twoStatements
 ]
 
-{ #category : 'initialization' }
-IGCoverageMock >> initialize [
+{ #category : 'dummy methods' }
+IGCoverageMock >> conditionalMethodAAA: aBoolean [
 
-	super initialize
+	^aBoolean ifTrue: [ 67 ]
+		 ifFalse: [ 42 ]
+]
+
+{ #category : 'dummy methods' }
+IGCoverageMock >> emptyMethod [
 ]
 
 { #category : 'dummy methods' }

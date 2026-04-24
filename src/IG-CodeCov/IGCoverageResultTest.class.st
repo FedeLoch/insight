@@ -9,5 +9,6 @@ Class {
 { #category : 'tests' }
 IGCoverageResultTest >> testMethodCoverageForRaiseWhenMethodNotInScope [
 
-	self should: [ IGCoverageResult new methodCoverageFor: #someMethod ] raise: Error
+	self should: [ IGCoverageResult new methodCoverageFor: #someMethod ]
+		raise: Error
 ]
