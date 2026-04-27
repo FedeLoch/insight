@@ -55,7 +55,7 @@ IGCodeCoverageProfiler >> getExectutedStatementsFor: aMethod [
 	| executedStatements |
 
 	executedStatements := IdentityDictionary new.
-	aMethod ast statements do: [ :eachNode |
+	aMethod ast allStatements do: [ :eachNode |
 			executedStatements at: eachNode
 				put: (statementCounter countAt: eachNode)
 			].

@@ -9,8 +9,8 @@ Class {
 { #category : 'helper' }
 IGCodeCoverageProfilerTest >> assertRecord: aMethodRecord equals: expected [
 
-	self assertCollection: aMethodRecord executedStatements asArray
-		equals: expected
+	self assertCollection: aMethodRecord executedStatements values
+		hasSameElements: expected
 ]
 
 { #category : 'helper' }
@@ -69,6 +69,21 @@ IGCodeCoverageProfilerTest >> testExecutedMethodIsCovered [
 
 	self assertRecord: methodCoverage
 		equals: { 1 }
+]
+
+{ #category : 'tests' }
+IGCodeCoverageProfilerTest >> testExecutionCountForRaiseWhenStatementIsNotPartOfMethod [
+
+	| methodCoverage method statement |
+
+	method := IGCoverageMock >> #oneStatement.
+	statement := (IGCoverageMock >> #twoStatements) ast statements first.
+	methodCoverage := self profileMethod: method
+		                  on: [ IGCoverageMock new twoStatements ].
+
+	self should: [ methodCoverage executionCountFor: statement ]
+
+		raise: Error
 ]
 
 { #category : 'tests - profiling' }
