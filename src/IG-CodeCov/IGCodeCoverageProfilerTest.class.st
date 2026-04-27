@@ -9,7 +9,7 @@ Class {
 { #category : 'helper' }
 IGCodeCoverageProfilerTest >> assertRecord: aMethodRecord equals: expected [
 
-	self assertCollection: aMethodRecord executedStatements values
+	self assertCollection: aMethodRecord statementCounters values
 		hasSameElements: expected
 ]
 

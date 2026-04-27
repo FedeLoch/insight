@@ -15,11 +15,11 @@ Class {
 }
 
 { #category : 'private' }
-IGCodeCoverageProfiler >> buildMethodCoverageRecordFor: aMethod [
+IGCodeCoverageProfiler >> buildRecordFor: aMethod [
 	"Build a IGMethodCoverageRecord struct from the counter values"
 
 	^IGMethodCoverageRecord for: aMethod
-		 executedStatements: (self getExectutedStatementsFor: aMethod)
+		 statementCounters: (self getCountersFor: aMethod)
 ]
 
 { #category : 'private' }
@@ -30,7 +30,7 @@ IGCodeCoverageProfiler >> buildResultFor: aCollectionOfMethods [
 
 	result := IGCoverageResult new.
 	aCollectionOfMethods do: [ :eachMethod |
-		result addRecord: (self buildMethodCoverageRecordFor: eachMethod) ].
+		result addRecord: (self buildRecordFor: eachMethod) ].
 	^result
 ]
 
@@ -49,7 +49,7 @@ IGCodeCoverageProfiler >> coverageResult [
 ]
 
 { #category : 'private' }
-IGCodeCoverageProfiler >> getExectutedStatementsFor: aMethod [
+IGCodeCoverageProfiler >> getCountersFor: aMethod [
 	"Get the counter values for each statement in the method and return them as an IdentityDictionary keyed by the AST node."
 
 	| executedStatements |

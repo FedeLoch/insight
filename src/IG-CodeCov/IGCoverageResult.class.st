@@ -29,6 +29,29 @@ IGCoverageResult >> coverageFor: aMethod [
 	  / methodRecord numberOfStatements * 100) asFloat
 ]
 
+{ #category : 'coverage' }
+IGCoverageResult >> fullyCoveredMethods [
+
+	^(self getMethodsFromPredicate: #isCovered) keys
+]
+
+{ #category : 'percentages' }
+IGCoverageResult >> fullyCoveredPercentage [
+
+	^((self getMethodsFromPredicate: #isCovered) size
+	  / methodRecordDictionary size * 100) asFloat
+]
+
+{ #category : 'private' }
+IGCoverageResult >> getMethodsFromPredicate: aPredicate [
+
+	^(methodRecordDictionary select:
+		  [ :eachRecord|
+			 aPredicate value: eachRecord
+		  ]
+	 )
+]
+
 { #category : 'initialization' }
 IGCoverageResult >> initialize [
 
@@ -47,7 +70,20 @@ IGCoverageResult >> isEmpty [
 { #category : 'querying' }
 IGCoverageResult >> numberOfRecordedMethod [
 
-    ^ methodRecordDictionary size
+    ^methodRecordDictionary size
+]
+
+{ #category : 'coverage' }
+IGCoverageResult >> partiallyCoveredMethods [
+
+	^(self getMethodsFromPredicate: #isPartiallyCovered) keys
+]
+
+{ #category : 'percentages' }
+IGCoverageResult >> partiallyCoveredPercentage [
+
+	^((self getMethodsFromPredicate: #isPartiallyCovered) size
+	  / methodRecordDictionary size * 100) asFloat
 ]
 
 { #category : 'accessing' }
@@ -64,5 +100,18 @@ IGCoverageResult >> recordFor: aMethod [
 { #category : 'accessing' }
 IGCoverageResult >> recordedMethodCollection [
 
-    ^ methodRecordDictionary
+    ^methodRecordDictionary
+]
+
+{ #category : 'coverage' }
+IGCoverageResult >> uncoveredMethods [
+
+	^(self getMethodsFromPredicate: #isUncovered) keys
+]
+
+{ #category : 'percentages' }
+IGCoverageResult >> uncoveredPercentage [
+
+	^((self getMethodsFromPredicate: #isUncovered) size
+	  / methodRecordDictionary size * 100) asFloat
 ]
