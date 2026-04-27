@@ -34,17 +34,6 @@ IGCoverageResultTest >> testFullyExecutedMethodCoverageIs100 [
 
 	| method |
 
-	method := IGCoverageMock >> #oneStatement.
-	self assertCoverageForMethod: method
-		running: [ IGCoverageMock new oneStatement ]
-		equals: 100 asFloat
-]
-
-{ #category : 'tests – failing' }
-IGCoverageResultTest >> testFullyExecutedMethodCoverageIs100Failing [
-
-	| method |
-
 	method := IGCoverageMock >> #twoStatements.
 	self assertCoverageForMethod: method
 		running: [ IGCoverageMock new twoStatements ]
