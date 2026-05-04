@@ -1,6 +1,12 @@
 Extension { #name : 'OCProgramNode' }
 
 { #category : '*Insight' }
+OCProgramNode >> allStatementsWithoutTemporaries [
+
+	^self allStatements
+]
+
+{ #category : '*Insight' }
 OCProgramNode >> childAtPath: aPath [
 
     "Return the AST node following aPath from myself.

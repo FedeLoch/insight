@@ -55,12 +55,11 @@ IGCodeCoverageProfiler >> getExectutedStatementsFor: aMethod [
 	| executedStatements |
 
 	executedStatements := IdentityDictionary new.
-	"Reject variable nodes, as they are not statements and thus not relevant for coverage."
-	(aMethod ast allStatements reject: [ :eachStatement| eachStatement isVariable ])
-		do: [ :eachNode |
-				executedStatements at: eachNode
-										 put: (statementCounter countAt: eachNode)
-			 ].
+	"Reject temporaries, as they are not statements and thus not relevant for coverage."
+	aMethod ast allStatementsWithoutTemporaries do: [ :eachNode |
+			executedStatements at: eachNode
+				put: (statementCounter countAt: eachNode)
+			].
 	^executedStatements
 ]
 

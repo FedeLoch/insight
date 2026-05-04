@@ -1,6 +1,12 @@
 Extension { #name : 'OCSequenceNode' }
 
 { #category : '*Insight' }
+OCSequenceNode >> allStatementsWithoutTemporaries [
+
+	^self allStatements
+]
+
+{ #category : '*Insight' }
 OCSequenceNode >> flattened [
 
 	| newStatements |

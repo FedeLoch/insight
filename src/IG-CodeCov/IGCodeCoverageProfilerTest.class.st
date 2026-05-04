@@ -86,6 +86,22 @@ IGCodeCoverageProfilerTest >> testExecutionCountForRaiseWhenStatementIsNotPartOf
 		raise: Error
 ]
 
+{ #category : 'tests' }
+IGCodeCoverageProfilerTest >> testExecutionCountIs2ForAStatementCalledTwice [
+
+	| methodCoverage statement |
+
+	statement := (IGCoverageMock >> #oneStatement) ast statements first.
+	methodCoverage := (self profileClass: IGCoverageMock
+		                   on: [
+				                   IGCoverageMock new
+					                   callSubMethod; oneStatement
+				                   ]) recordFor: IGCoverageMock >> #oneStatement.
+
+	self assert: (methodCoverage executionCountFor: statement)
+		equals: 2
+]
+
 { #category : 'tests - profiling' }
 IGCodeCoverageProfilerTest >> testMethodUncoveredWhenNotExecuted [
 
