@@ -19,6 +19,16 @@ IGCoverageResult >> addRecord: anIGMethodCoverageRecord [
 		put: anIGMethodCoverageRecord
 ]
 
+{ #category : 'querying' }
+IGCoverageResult >> coverageFor: aMethod [
+
+	| methodRecord |
+
+	methodRecord := self recordFor: aMethod.
+	^(methodRecord numberOfExecutedStatements
+	  / methodRecord numberOfStatements * 100) asFloat
+]
+
 { #category : 'initialization' }
 IGCoverageResult >> initialize [
 
@@ -34,14 +44,8 @@ IGCoverageResult >> isEmpty [
 	^methodRecordDictionary isEmpty
 ]
 
-{ #category : 'accessing' }
-IGCoverageResult >> methodRecordDictionary [
-
-    ^ methodRecordDictionary
-]
-
 { #category : 'querying' }
-IGCoverageResult >> numberOfRecordedMethods [
+IGCoverageResult >> numberOfRecordedMethod [
 
     ^ methodRecordDictionary size
 ]
@@ -55,4 +59,10 @@ IGCoverageResult >> recordFor: aMethod [
 				 self error:
 					 ('Method {1} is not present.' format: { aMethod printString })
 				 ]
+]
+
+{ #category : 'accessing' }
+IGCoverageResult >> recordedMethodCollection [
+
+    ^ methodRecordDictionary
 ]

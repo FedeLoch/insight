@@ -55,7 +55,8 @@ IGCodeCoverageProfiler >> getExectutedStatementsFor: aMethod [
 	| executedStatements |
 
 	executedStatements := IdentityDictionary new.
-	aMethod ast statements do: [ :eachNode |
+	"Reject temporaries, as they are not statements and thus not relevant for coverage."
+	aMethod ast allStatementsWithoutTemporaries do: [ :eachNode |
 			executedStatements at: eachNode
 				put: (statementCounter countAt: eachNode)
 			].

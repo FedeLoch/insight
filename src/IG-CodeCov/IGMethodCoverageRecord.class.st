@@ -53,3 +53,16 @@ IGMethodCoverageRecord >> method: aMethod [
 
 	method := aMethod
 ]
+
+{ #category : 'querying' }
+IGMethodCoverageRecord >> numberOfExecutedStatements [
+
+	^(executedStatements values select: [ :eachValue | eachValue > 0 ])
+		 size
+]
+
+{ #category : 'querying' }
+IGMethodCoverageRecord >> numberOfStatements [
+
+	^executedStatements size
+]
