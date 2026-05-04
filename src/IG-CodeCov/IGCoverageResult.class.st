@@ -7,9 +7,9 @@ Class {
 	#instVars : [
 		'methodRecordDictionary'
 	],
-	#category : 'IG-CodeCov-IG-CodeCoverage',
+	#category : 'IG-CodeCov-CodeCoverage',
 	#package : 'IG-CodeCov',
-	#tag : 'IG-CodeCoverage'
+	#tag : 'CodeCoverage'
 }
 
 { #category : 'adding' }
@@ -21,10 +21,12 @@ IGCoverageResult >> addRecord: anIGMethodCoverageRecord [
 
 { #category : 'querying' }
 IGCoverageResult >> coverageFor: aMethod [
+	"Empty methods (no statements) report 0% coverage to avoid 0/0"
 
 	| methodRecord |
 
 	methodRecord := self recordFor: aMethod.
+	methodRecord numberOfStatements = 0 ifTrue: [ ^0.0 ].
 	^ (methodRecord numberOfExecutedStatements
 	   / methodRecord numberOfStatements * 100) asFloat
 ]
@@ -32,7 +34,7 @@ IGCoverageResult >> coverageFor: aMethod [
 { #category : 'coverage' }
 IGCoverageResult >> fullyCoveredMethods [
 
-	^ (self getMethodsFromPredicate: #isCovered) keys
+	^ (self getMethodsFromPredicate: #isCovered) values
 ]
 
 { #category : 'percentages' }
@@ -72,7 +74,7 @@ IGCoverageResult >> numberOfRecordedMethod [
 { #category : 'coverage' }
 IGCoverageResult >> partiallyCoveredMethods [
 
-	^ (self getMethodsFromPredicate: #isPartiallyCovered) keys
+	^ (self getMethodsFromPredicate: #isPartiallyCovered) values
 ]
 
 { #category : 'percentages' }
@@ -102,7 +104,7 @@ IGCoverageResult >> recordedMethodCollection [
 { #category : 'coverage' }
 IGCoverageResult >> uncoveredMethods [
 
-	^ (self getMethodsFromPredicate: #isUncovered) keys
+	^ (self getMethodsFromPredicate: #isUncovered) values
 ]
 
 { #category : 'percentages' }

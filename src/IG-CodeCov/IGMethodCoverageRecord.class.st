@@ -5,9 +5,9 @@ Class {
 		'method',
 		'statementCounters'
 	],
-	#category : 'IG-CodeCov-IG-CodeCoverage',
+	#category : 'IG-CodeCov-CodeCoverage',
 	#package : 'IG-CodeCov',
-	#tag : 'IG-CodeCoverage'
+	#tag : 'CodeCoverage'
 }
 
 { #category : 'instance creation' }
@@ -20,7 +20,7 @@ IGMethodCoverageRecord class >> for: aMethod statementCounters: aDictionary [
 { #category : 'accessing' }
 IGMethodCoverageRecord >> executedStatements [
 
-	^ statementCounters select: [ :eachCounter | eachCounter > 0 ]
+	^ (statementCounters select: [ :eachCounter | eachCounter > 0 ]) keys
 ]
 
 { #category : 'querying' }
@@ -38,8 +38,10 @@ IGMethodCoverageRecord >> executionCountFor: aStatementNode [
 
 { #category : 'querying' }
 IGMethodCoverageRecord >> isCovered [
+	"An empty method (nop statements) is not considered covered."
 
-	^ self numberOfExecutedStatements = self numberOfStatements
+	^ self numberOfStatements > 0 and: [
+		 self numberOfExecutedStatements = self numberOfStatements ]
 ]
 
 { #category : 'querying' }
@@ -70,7 +72,7 @@ IGMethodCoverageRecord >> method: aMethod [
 { #category : 'accessing' }
 IGMethodCoverageRecord >> nonExecutedStatements [
 
-	^ statementCounters select: [ :eachCounter | eachCounter = 0 ]
+	^ (statementCounters select: [ :eachCounter | eachCounter = 0 ]) keys
 ]
 
 { #category : 'querying' }

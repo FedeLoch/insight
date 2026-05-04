@@ -1,9 +1,9 @@
 Class {
 	#name : 'IGCoverageMock',
 	#superclass : 'Object',
-	#category : 'IG-CodeCov-IG-CodeCoverageTest',
+	#category : 'IG-CodeCov-CodeCoverageTest',
 	#package : 'IG-CodeCov',
-	#tag : 'IG-CodeCoverageTest'
+	#tag : 'CodeCoverageTest'
 }
 
 { #category : 'dummy methods' }
