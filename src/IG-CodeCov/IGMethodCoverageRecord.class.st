@@ -3,7 +3,7 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'method',
-		'executedStatements'
+		'statementCounters'
 	],
 	#category : 'IG-CodeCov-IG-CodeCoverage',
 	#package : 'IG-CodeCov',
@@ -11,41 +11,54 @@ Class {
 }
 
 { #category : 'instance creation' }
-IGMethodCoverageRecord class >> for: aMethod executedStatements: aDictionary [
+IGMethodCoverageRecord class >> for: aMethod statementCounters: aDictionary [
 
 	^self new
-		 method: aMethod; executedStatements: aDictionary; yourself
+		 method: aMethod; statementCounters: aDictionary; yourself
 ]
 
 { #category : 'accessing' }
 IGMethodCoverageRecord >> executedStatements [
 
-	^executedStatements
-]
-
-{ #category : 'accessing' }
-IGMethodCoverageRecord >> executedStatements: aCollectionOfStatementNodes [
-
-	executedStatements := aCollectionOfStatementNodes
+	^ statementCounters select: [ :eachCounter | eachCounter > 0 ]
 ]
 
 { #category : 'querying' }
 IGMethodCoverageRecord >> executionCountFor: aStatementNode [
 
-	^executedStatements at: aStatementNode
-		 ifAbsent: [
-				 self error:
-					 ('This node {1} is not a statement of the method {2}.' format:
-						  {
-							  aStatementNode printString.
-							  method printString })
-				 ]
+	^ statementCounters at: aStatementNode
+		  ifAbsent: [
+				  self error:
+					  ('This node {1} is not a statement of the method {2}.' format:
+						   {
+							   aStatementNode printString.
+							   method printString })
+				  ]
+]
+
+{ #category : 'querying' }
+IGMethodCoverageRecord >> isCovered [
+
+	^ self numberOfExecutedStatements = self numberOfStatements
+]
+
+{ #category : 'querying' }
+IGMethodCoverageRecord >> isPartiallyCovered [
+
+	^ self numberOfExecutedStatements > 0 and: [
+		  self numberOfNonExecutedStatements > 0 ]
+]
+
+{ #category : 'querying' }
+IGMethodCoverageRecord >> isUncovered [
+
+	^ self numberOfExecutedStatements = 0
 ]
 
 { #category : 'accessing' }
 IGMethodCoverageRecord >> method [
 
-	^method
+	^ method
 ]
 
 { #category : 'accessing' }
@@ -54,15 +67,38 @@ IGMethodCoverageRecord >> method: aMethod [
 	method := aMethod
 ]
 
+{ #category : 'accessing' }
+IGMethodCoverageRecord >> nonExecutedStatements [
+
+	^ statementCounters select: [ :eachCounter | eachCounter = 0 ]
+]
+
 { #category : 'querying' }
 IGMethodCoverageRecord >> numberOfExecutedStatements [
 
-	^(executedStatements values select: [ :eachValue | eachValue > 0 ])
-		 size
+	^ self executedStatements size
+]
+
+{ #category : 'querying' }
+IGMethodCoverageRecord >> numberOfNonExecutedStatements [
+
+	^ self nonExecutedStatements size
 ]
 
 { #category : 'querying' }
 IGMethodCoverageRecord >> numberOfStatements [
 
-	^executedStatements size
+	^ statementCounters size
+]
+
+{ #category : 'accessing' }
+IGMethodCoverageRecord >> statementCounters [
+
+	^ statementCounters
+]
+
+{ #category : 'accessing' }
+IGMethodCoverageRecord >> statementCounters: aCollectionOfStatementCounters [
+
+	statementCounters := aCollectionOfStatementCounters
 ]
