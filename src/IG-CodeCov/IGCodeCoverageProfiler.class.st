@@ -18,8 +18,8 @@ Class {
 IGCodeCoverageProfiler >> buildRecordFor: aMethod [
 	"Build a IGMethodCoverageRecord struct from the counter values"
 
-	^IGMethodCoverageRecord for: aMethod
-		 statementCounters: (self getCountersFor: aMethod)
+	^ IGMethodCoverageRecord for: aMethod
+		  statementCounters: (self getCountersFor: aMethod)
 ]
 
 { #category : 'private' }
@@ -31,7 +31,7 @@ IGCodeCoverageProfiler >> buildResultFor: aCollectionOfMethods [
 	result := IGCoverageResult new.
 	aCollectionOfMethods do: [ :eachMethod |
 		result addRecord: (self buildRecordFor: eachMethod) ].
-	^result
+	^ result
 ]
 
 { #category : 'api' }
@@ -45,7 +45,7 @@ IGCodeCoverageProfiler >> classesToInstrument: aCollectionOfClasses [
 { #category : 'accessing' }
 IGCodeCoverageProfiler >> coverageResult [
 
-	^coverageResult
+	^ coverageResult
 ]
 
 { #category : 'private' }
@@ -60,7 +60,7 @@ IGCodeCoverageProfiler >> getCountersFor: aMethod [
 			executedStatements at: eachNode
 				put: (statementCounter countAt: eachNode)
 			].
-	^executedStatements
+	^ executedStatements
 ]
 
 { #category : 'initialization' }
@@ -75,7 +75,7 @@ IGCodeCoverageProfiler >> initialize [
 { #category : 'private - accessing' }
 IGCodeCoverageProfiler >> instrumentedMethods [
 
-	^instrumentedMethods
+	^ instrumentedMethods
 ]
 
 { #category : 'api' }

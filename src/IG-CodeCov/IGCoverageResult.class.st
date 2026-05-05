@@ -25,31 +25,27 @@ IGCoverageResult >> coverageFor: aMethod [
 	| methodRecord |
 
 	methodRecord := self recordFor: aMethod.
-	^(methodRecord numberOfExecutedStatements
-	  / methodRecord numberOfStatements * 100) asFloat
+	^ (methodRecord numberOfExecutedStatements
+	   / methodRecord numberOfStatements * 100) asFloat
 ]
 
 { #category : 'coverage' }
 IGCoverageResult >> fullyCoveredMethods [
 
-	^(self getMethodsFromPredicate: #isCovered) keys
+	^ (self getMethodsFromPredicate: #isCovered) keys
 ]
 
 { #category : 'percentages' }
 IGCoverageResult >> fullyCoveredPercentage [
 
-	^((self getMethodsFromPredicate: #isCovered) size
-	  / methodRecordDictionary size * 100) asFloat
+	^ ((self getMethodsFromPredicate: #isCovered) size
+	   / methodRecordDictionary size * 100) asFloat
 ]
 
 { #category : 'private' }
 IGCoverageResult >> getMethodsFromPredicate: aPredicate [
 
-	^(methodRecordDictionary select:
-		  [ :eachRecord|
-			 aPredicate value: eachRecord
-		  ]
-	 )
+	^ methodRecordDictionary select: aPredicate
 ]
 
 { #category : 'initialization' }
@@ -64,54 +60,54 @@ IGCoverageResult >> initialize [
 { #category : 'querying' }
 IGCoverageResult >> isEmpty [
 
-	^methodRecordDictionary isEmpty
+	^ methodRecordDictionary isEmpty
 ]
 
 { #category : 'querying' }
 IGCoverageResult >> numberOfRecordedMethod [
 
-    ^methodRecordDictionary size
+	^ methodRecordDictionary size
 ]
 
 { #category : 'coverage' }
 IGCoverageResult >> partiallyCoveredMethods [
 
-	^(self getMethodsFromPredicate: #isPartiallyCovered) keys
+	^ (self getMethodsFromPredicate: #isPartiallyCovered) keys
 ]
 
 { #category : 'percentages' }
 IGCoverageResult >> partiallyCoveredPercentage [
 
-	^((self getMethodsFromPredicate: #isPartiallyCovered) size
-	  / methodRecordDictionary size * 100) asFloat
+	^ ((self getMethodsFromPredicate: #isPartiallyCovered) size
+	   / methodRecordDictionary size * 100) asFloat
 ]
 
 { #category : 'accessing' }
 IGCoverageResult >> recordFor: aMethod [
 	"Raise an error if the method isn't present"
 
-	^methodRecordDictionary at: aMethod
-		 ifAbsent: [
-				 self error:
-					 ('Method {1} is not present.' format: { aMethod printString })
-				 ]
+	^ methodRecordDictionary at: aMethod
+		  ifAbsent: [
+				  self error:
+					  ('Method {1} is not present.' format: { aMethod printString })
+				  ]
 ]
 
 { #category : 'accessing' }
 IGCoverageResult >> recordedMethodCollection [
 
-    ^methodRecordDictionary
+	^ methodRecordDictionary
 ]
 
 { #category : 'coverage' }
 IGCoverageResult >> uncoveredMethods [
 
-	^(self getMethodsFromPredicate: #isUncovered) keys
+	^ (self getMethodsFromPredicate: #isUncovered) keys
 ]
 
 { #category : 'percentages' }
 IGCoverageResult >> uncoveredPercentage [
 
-	^((self getMethodsFromPredicate: #isUncovered) size
-	  / methodRecordDictionary size * 100) asFloat
+	^ ((self getMethodsFromPredicate: #isUncovered) size
+	   / methodRecordDictionary size * 100) asFloat
 ]
