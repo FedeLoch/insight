@@ -28,12 +28,9 @@ IGMethodCoverageRecord >> executionCountFor: aStatementNode [
 
 	^ statementCounters at: aStatementNode
 		  ifAbsent: [
-				  self error:
-					  ('This node {1} is not a statement of the method {2}.' format:
-						   {
+				  self error: ('This node {1} is not a statement of the method {2}.' format: {
 							   aStatementNode printString.
-							   method printString })
-				  ]
+							   method printString }) ]
 ]
 
 { #category : 'querying' }
@@ -41,14 +38,13 @@ IGMethodCoverageRecord >> isCovered [
 	"An empty method (nop statements) is not considered covered."
 
 	^ self numberOfStatements > 0 and: [
-		 self numberOfExecutedStatements = self numberOfStatements ]
+		  self numberOfExecutedStatements = self numberOfStatements ]
 ]
 
 { #category : 'querying' }
 IGMethodCoverageRecord >> isPartiallyCovered [
 
-	^ self numberOfExecutedStatements > 0 and: [
-		  self numberOfNonExecutedStatements > 0 ]
+	^ self numberOfExecutedStatements > 0 and: [ self numberOfNonExecutedStatements > 0 ]
 ]
 
 { #category : 'querying' }

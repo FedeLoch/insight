@@ -38,8 +38,7 @@ IGCodeCoverageProfiler >> buildResultFor: aCollectionOfMethods [
 IGCodeCoverageProfiler >> classesToInstrument: aCollectionOfClasses [
 	" Sugar for getting and instrumenting the methods from the classes."
 
-	self methodsToInstrument:
-		(aCollectionOfClasses flatCollect: #definedMethods)
+	self methodsToInstrument: (aCollectionOfClasses flatCollect: #definedMethods)
 ]
 
 { #category : 'accessing' }
@@ -58,8 +57,7 @@ IGCodeCoverageProfiler >> getCountersFor: aMethod [
 	"Reject temporaries, as they are not statements and thus not relevant for coverage."
 	aMethod ast allStatementsWithoutTemporaries do: [ :eachNode |
 			counters at: eachNode
-				put: (statementCounter countAt: eachNode)
-			].
+				put: (statementCounter countAt: eachNode) ].
 	^ counters
 ]
 
@@ -98,5 +96,6 @@ IGCodeCoverageProfiler >> profileOn: aBlock [
 	instrumentation instrumentMethods: instrumentedMethods
 		during: aBlock.
 
-	coverageResult := self buildResultFor: instrumentedMethods
+	coverageResult := self buildResultFor: instrumentedMethods.
+	^ coverageResult
 ]

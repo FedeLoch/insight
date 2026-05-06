@@ -26,9 +26,9 @@ IGCoverageResult >> coverageFor: aMethod [
 	| methodRecord |
 
 	methodRecord := self recordFor: aMethod.
-	methodRecord numberOfStatements = 0 ifTrue: [ ^0.0 ].
-	^ (methodRecord numberOfExecutedStatements
-	   / methodRecord numberOfStatements * 100) asFloat
+	methodRecord numberOfStatements = 0 ifTrue: [ ^ 0.0 ].
+	^ (methodRecord numberOfExecutedStatements / methodRecord numberOfStatements * 100)
+		  asFloat
 ]
 
 { #category : 'coverage' }
@@ -40,8 +40,8 @@ IGCoverageResult >> fullyCoveredMethods [
 { #category : 'percentages' }
 IGCoverageResult >> fullyCoveredPercentage [
 
-	^ ((self getMethodsFromPredicate: #isCovered) size
-	   / methodRecordDictionary size * 100) asFloat
+	^ ((self getMethodsFromPredicate: #isCovered) size / methodRecordDictionary size * 100)
+		  asFloat
 ]
 
 { #category : 'private' }
@@ -80,8 +80,8 @@ IGCoverageResult >> partiallyCoveredMethods [
 { #category : 'percentages' }
 IGCoverageResult >> partiallyCoveredPercentage [
 
-	^ ((self getMethodsFromPredicate: #isPartiallyCovered) size
-	   / methodRecordDictionary size * 100) asFloat
+	^ ((self getMethodsFromPredicate: #isPartiallyCovered) size / methodRecordDictionary size
+	   * 100) asFloat
 ]
 
 { #category : 'accessing' }
@@ -90,9 +90,7 @@ IGCoverageResult >> recordFor: aMethod [
 
 	^ methodRecordDictionary at: aMethod
 		  ifAbsent: [
-				  self error:
-					  ('Method {1} is not present.' format: { aMethod printString })
-				  ]
+		  self error: ('Method {1} is not present.' format: { aMethod printString }) ]
 ]
 
 { #category : 'accessing' }
@@ -110,6 +108,6 @@ IGCoverageResult >> uncoveredMethods [
 { #category : 'percentages' }
 IGCoverageResult >> uncoveredPercentage [
 
-	^ ((self getMethodsFromPredicate: #isUncovered) size
-	   / methodRecordDictionary size * 100) asFloat
+	^ ((self getMethodsFromPredicate: #isUncovered) size / methodRecordDictionary size * 100)
+		  asFloat
 ]
