@@ -17,6 +17,13 @@ ManifestInsight class >> ruleAssignmentInIfTrueRuleV1FalsePositive [
 ]
 
 { #category : 'code-critics' }
+ManifestInsight class >> ruleExtraBlockRuleV1FalsePositive [
+
+	<ignoreForCoverage>
+	^ #(#(#(#RGMethodDefinition #(#IGTest #methodWithBlockImplicitReturn #false)) #'2026-05-06T11:11:43.905312+02:00') )
+]
+
+{ #category : 'code-critics' }
 ManifestInsight class >> ruleTempsReadBeforeWrittenRuleV1FalsePositive [
 
 	<ignoreForCoverage>

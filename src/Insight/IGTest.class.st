@@ -56,6 +56,16 @@ IGTest >> instrumentingClass: aClass with: hooks running: programBlock assert: a
 ]
 
 { #category : 'helper methods' }
+IGTest >> methodWithBlockImplicitReturn [
+
+	| x |
+
+	^ [
+		  x := 67.
+		  x ] value
+]
+
+{ #category : 'helper methods' }
 IGTest >> returnMethod [
 
 	^ 42
@@ -76,6 +86,25 @@ IGTest >> slowFactorial: n [
 
 	n < 2 ifTrue: [ ^1 ].
 	^n * (self slowFactorial: n - 1)
+]
+
+{ #category : 'method tests' }
+IGTest >> testAfterStatementHookPreservesBlockImplicitReturnValue [
+
+	| afterHook counter methodToInstrument result |
+
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	methodToInstrument := IGTest >> #methodWithBlockImplicitReturn.
+
+	self instrumenting: methodToInstrument
+		with: { afterHook }
+		running: [ result := self methodWithBlockImplicitReturn ]
+		assert: [ :method | "This is important as is test that insight do not override the implicit return value (see #51)"
+				self assert: result
+					equals: 67.
+				self assert: counter count value
+					equals: 3 ]
 ]
 
 { #category : 'method tests' }

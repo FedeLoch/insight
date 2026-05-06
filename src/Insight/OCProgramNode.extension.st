@@ -19,6 +19,16 @@ OCProgramNode >> childAtPath: aPath [
 ]
 
 { #category : '*Insight' }
+OCProgramNode >> isLastBlockStatement [
+
+	parent ifNil: [ ^ false ].
+	parent isSequence ifFalse: [ ^ false ].
+	parent parent ifNil: [ ^ false ].
+	parent parent isBlock ifFalse: [ ^ false ].
+	^ parent statements last == self
+]
+
+{ #category : '*Insight' }
 OCProgramNode >> isStatement [
 
 	^ self parent notNil and: [ self parent isSequence ]
