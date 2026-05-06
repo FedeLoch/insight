@@ -66,6 +66,18 @@ IGTest >> methodWithBlockImplicitReturn [
 ]
 
 { #category : 'helper methods' }
+IGTest >> nestedBlockShadowing [
+
+	| blockReturnVal anotherBlockReturnVal |
+
+	anotherBlockReturnVal := [
+		                         blockReturnVal := [ 69 - 67 ] value.
+		                         40 ] value.
+
+	^ blockReturnVal + anotherBlockReturnVal
+]
+
+{ #category : 'helper methods' }
 IGTest >> returnMethod [
 
 	^ 42
@@ -86,6 +98,24 @@ IGTest >> slowFactorial: n [
 
 	n < 2 ifTrue: [ ^1 ].
 	^n * (self slowFactorial: n - 1)
+]
+
+{ #category : 'method tests' }
+IGTest >> testAfterStatementHookDoesnotShadow [
+
+	| afterHook counter methodToInstrument result |
+
+	counter := IGCounter new.
+	afterHook := IGAfterStatementHook new do: counter.
+	methodToInstrument := IGTest >> #nestedBlockShadowing.
+
+	self instrumenting: methodToInstrument
+		with: { afterHook }
+		running: [ result := self nestedBlockShadowing ]
+		assert: [ :method |
+				self assert: result
+					equals: 42.
+				self assert: counter count > 0 ]
 ]
 
 { #category : 'method tests' }

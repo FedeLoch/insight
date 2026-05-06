@@ -20,14 +20,14 @@ ManifestInsight class >> ruleAssignmentInIfTrueRuleV1FalsePositive [
 ManifestInsight class >> ruleExtraBlockRuleV1FalsePositive [
 
 	<ignoreForCoverage>
-	^ #(#(#(#RGMethodDefinition #(#IGTest #methodWithBlockImplicitReturn #false)) #'2026-05-06T11:11:43.905312+02:00') )
+	^ #(#(#(#RGMethodDefinition #(#IGTest #methodWithBlockImplicitReturn #false)) #'2026-05-06T11:11:43.905312+02:00') #(#(#RGMethodDefinition #(#IGTest #nestedBlockShadowing #false)) #'2026-05-06T14:51:38.467629+02:00') )
 ]
 
 { #category : 'code-critics' }
 ManifestInsight class >> ruleTempsReadBeforeWrittenRuleV1FalsePositive [
 
 	<ignoreForCoverage>
-	^ #(#(#(#RGMethodDefinition #(#IGTest #testRecursiveMethodAccumulatesCount #false)) #'2026-04-17T14:22:16.945895+02:00') )
+	^ #(#(#(#RGMethodDefinition #(#IGTest #testRecursiveMethodAccumulatesCount #false)) #'2026-04-17T14:22:16.945895+02:00') #(#(#RGMethodDefinition #(#IGTest #nestedBlockShadowing #false)) #'2026-05-06T14:52:11.619812+02:00') #(#(#RGClassDefinition #(#IGTest)) #'2026-05-06T15:00:26.924271+02:00') )
 ]
 
 { #category : 'code-critics' }
