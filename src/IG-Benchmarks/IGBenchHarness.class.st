@@ -86,5 +86,5 @@ IGBenchHarness class >> timeMicros: aBlock [
 	"Run aBlock once, return microseconds elapsed as an Integer.
 	 Uses the standard Pharo `Time microsecondsToRun:` class method."
 
-	^ Time microsecondsToRun: aBlock
+	^ aBlock microsecondsToRun
 ]
