@@ -131,7 +131,7 @@ IGInstrumentation >> rewriteLastBlockStatementNode: node before: beforeNodes aft
 
 	| assigmentNode newReturnNode tempName |
 
-	tempName := self generateTemporaryNameWithPrefix: 'igBlockReturnVal'.
+	tempName := self generateTemporaryNameWithPrefix: 'blockReturnVal'.
 	node parent addTemporaryNamed: tempName.
 	assigmentNode := OCAssignmentNode variable: (OCVariableNode named: tempName)
 		                 value: wrappedNode.
@@ -219,7 +219,7 @@ IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNod
 
 	| assigmentNode newReturnNode returnValueNode tempName |
 
-	tempName := self generateTemporaryNameWithPrefix: 'igReturnVal'.
+	tempName := self generateTemporaryNameWithPrefix: 'returnVal'.
 	returnValueNode := wrappedNode value.
 	node parent addTemporaryNamed: tempName.
 
