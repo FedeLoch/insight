@@ -121,6 +121,22 @@ IGInstrumentation >> rewriteAssignment: node before: beforeNodes after: afterNod
 ]
 
 { #category : 'as yet unclassified' }
+IGInstrumentation >> rewriteLastBlockStatementNode: node before: beforeNodes after: afterNodes wrapped: wrappedNode [
+
+	| assigmentNode newReturnNode |
+
+	node parent addTemporaryNamed: 'blockReturnVal'.
+	assigmentNode := OCAssignmentNode variable: (OCVariableNode named: 'blockReturnVal')
+		                 value: wrappedNode.
+
+	newReturnNode := OCVariableNode named: 'blockReturnVal'.
+
+	^ node parent replaceNode: node
+		  withNodes:
+		  beforeNodes asArray , { assigmentNode } , afterNodes asArray , { newReturnNode }
+]
+
+{ #category : 'as yet unclassified' }
 IGInstrumentation >> rewriteMethod: method before: beforeNodes after: afterNodes [ 
 
 	| methodBody newNode |
@@ -138,41 +154,57 @@ IGInstrumentation >> rewriteMethod: method before: beforeNodes after: afterNodes
 IGInstrumentation >> rewriteNode: node with: operations [
 
 	| beforeNodes afterNodes wrapStatements wrappedNode newTempNodes |
-	
-	wrapStatements := operations select: [ :e | e isWrapStatement ].
-	wrappedNode := wrapStatements ifEmpty: [ node copy ] ifNotEmpty: [
-		wrapStatements anyOne instrumentationNode
-	].
 
-	newTempNodes := operations select: #isAddNewTemp thenCollect: #instrumentationNode.
-	beforeNodes := operations select: #isBeforeAction thenCollect: #instrumentationNode.
-	afterNodes := operations select: #isAfterAction thenCollect: #instrumentationNode.
+	wrapStatements := operations select: [ :e | e isWrapStatement ].
+	wrappedNode := wrapStatements ifEmpty: [ node copy ]
+		               ifNotEmpty: [ wrapStatements anyOne instrumentationNode ].
+
+	newTempNodes := operations select: #isAddNewTemp
+		                thenCollect: #instrumentationNode.
+	beforeNodes := operations select: #isBeforeAction
+		               thenCollect: #instrumentationNode.
+	afterNodes := operations select: #isAfterAction
+		              thenCollect: #instrumentationNode.
 
 	newTempNodes do: [ :e | node parent addTemporaryNamed: e name ].
 
 	node isReturn ifTrue: [
-		self rewriteReturnNode: node before: beforeNodes after: afterNodes wrapped: wrappedNode.
-		"RETURNING"
-		^ self
-	].
+			self rewriteReturnNode: node
+				before: beforeNodes
+				after: afterNodes
+				wrapped: wrappedNode.
+			"RETURNING"
+			^ self ].
+
+	"Last statement of a block case"
+	node isLastBlockStatement ifTrue: [
+			self rewriteLastBlockStatementNode: node
+				before: beforeNodes
+				after: afterNodes
+				wrapped: wrappedNode.
+			"RETURING"
+			^ self ].
 
 	"Assignment case"
 	node isAssignment ifTrue: [
-		self rewriteAssignment: node before: beforeNodes after: afterNodes wrapped: wrappedNode.
-		"RETURNING"
-		^ self
-	].
+			self rewriteAssignment: node
+				before: beforeNodes
+				after: afterNodes
+				wrapped: wrappedNode.
+			"RETURNING"
+			^ self ].
 
 	"Method case"
 	node isMethod ifTrue: [
-		self rewriteMethod: node before: beforeNodes after: afterNodes.
-		"RETURNING"
-		^ self
-	].
+			self rewriteMethod: node
+				before: beforeNodes
+				after: afterNodes.
+			"RETURNING"
+			^ self ].
 
 	"Default case"
-	node parent replaceNode: node withNodes:
-		beforeNodes asArray, { wrappedNode }, afterNodes asArray
+	node parent replaceNode: node
+		withNodes: beforeNodes asArray , { wrappedNode } , afterNodes asArray
 ]
 
 { #category : 'as yet unclassified' }
