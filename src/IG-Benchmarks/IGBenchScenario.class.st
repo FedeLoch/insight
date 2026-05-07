@@ -56,6 +56,23 @@ IGBenchScenario class >> afterStatementCollectorReceiver [
 ]
 
 { #category : 'configurations' }
+IGBenchScenario class >> afterStatementCollectorResult [
+	"R1: Collector that captures the statementResult reification.
+	 This is materially different from A1/A2: the rewrite path injects
+	 a per-statement `temp := <original>` wrap plus a temp-var
+	 declaration (see IGStatementResultReification>>rewriteOperationsForNode:),
+	 so we measure both the wrap overhead AND the value-capture overhead
+	 in one number."
+
+	^ self
+		code: 'R1'
+		name: 'AfterStmt + Collector[statementResult]'
+		factory: [
+			IGAfterStatementHook new
+				do: (IGCollector collect: [ :ctx | ctx statementResult ]) ]
+]
+
+{ #category : 'configurations' }
 IGBenchScenario class >> afterStatementCounter [
 	"H1: After-statement, single-key counter (no per-node dictionary growth).
 	 Compare to C1 to isolate Dictionary at:update: cost."
@@ -77,7 +94,8 @@ IGBenchScenario class >> all [
 		self afterAssignmentCounter.
 		self beforeAssignmentCounter.
 		self afterStatementCollectorAst.
-		self afterStatementCollectorReceiver
+		self afterStatementCollectorReceiver.
+		self afterStatementCollectorResult.
 	}
 ]
 
