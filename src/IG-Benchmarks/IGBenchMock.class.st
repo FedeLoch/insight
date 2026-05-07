@@ -9,6 +9,9 @@ so these methods stay shape-pure.
 Class {
 	#name : 'IGBenchMock',
 	#superclass : 'Object',
+	#instVars : [
+		'state'
+	],
 	#category : 'IG-Benchmarks-Workloads',
 	#package : 'IG-Benchmarks',
 	#tag : 'Workloads'
@@ -92,6 +95,61 @@ IGBenchMock >> recursiveFactorial: n [
 
 	n < 2 ifTrue: [ ^ 1 ].
 	^ n * (self recursiveFactorial: n - 1)
+]
+
+{ #category : 'workloads - straight-line' }
+IGBenchMock >> straightLine200 [
+	"200 top-level statements designed to defeat JIT optimisation:
+	   - each statement is a message send into OrderedCollection (Cog
+	     does not eliminate cross-class sends with side effects)
+	   - the collection size stays bounded (alternating addLast/removeFirst)
+	   - no arithmetic on `state`, so no LargeInteger growth.
+
+	 `state` holds the OrderedCollection across calls; reusing it avoids
+	 GC pressure that would mask per-firing cost."
+
+	state ifNil: [ state := OrderedCollection new ].
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	state addLast: 1. state removeFirst. state addLast: 2. state removeFirst. state addLast: 3.
+	state removeFirst. state addLast: 4. state removeFirst. state addLast: 5. state removeFirst.
+	^ state size
 ]
 
 { #category : 'workloads - sends' }

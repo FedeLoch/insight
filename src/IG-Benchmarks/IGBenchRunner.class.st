@@ -336,6 +336,7 @@ IGBenchRunner >> workloadSpecs [
 		{ #lightMethod.         [ 100000 timesRepeat: [ mock lightMethod ] ].  '100k calls'  }.
 		{ #mediumMethod.        [ 30000 timesRepeat: [ mock mediumMethod ] ].  '30k calls'   }.
 		{ #heavyMethod.         [ 10000 timesRepeat: [ mock heavyMethod ] ].   '10k calls'   }.
+		{ #straightLine200.     [ 1000 timesRepeat: [ mock straightLine200 ] ]. '1k calls × 200 stmts'  }.
 		{ #assignmentChain.     [ 100000 timesRepeat: [ mock assignmentChain ] ]. '100k calls' }.
 		{ #tightLoop:.          [ mock tightLoop: 500000 ].                    '500k iters'  }.
 		{ #tightLoopHeavy:.     [ mock tightLoopHeavy: 30000 ].                '30k iters'   }.
