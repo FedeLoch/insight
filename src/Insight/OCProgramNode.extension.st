@@ -19,6 +19,12 @@ OCProgramNode >> childAtPath: aPath [
 ]
 
 { #category : '*Insight' }
+OCProgramNode >> flattenedNodes [
+
+	^ { self copy }
+]
+
+{ #category : '*Insight' }
 OCProgramNode >> isLastBlockStatement [
 
 	parent ifNil: [ ^ false ].

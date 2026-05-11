@@ -33,6 +33,21 @@ IGASTTest >> testAssignmentNodeToList1 [
 ]
 
 { #category : 'tests' }
+IGASTTest >> testFlattenedNodesArrayWithInnerAssignement [
+
+	| arrayNode innerAssignement flattenedArray |
+
+	arrayNode := OCParser parseExpression: '{ a := 1. b. c }'.
+	innerAssignement := OCParser parseExpression: 'a := 1'.
+	flattenedArray := OCParser parseExpression: '{a. b. c}'.
+
+	self assertCollection: arrayNode flattenedNodes
+		equals: {
+				innerAssignement.
+				flattenedArray }
+]
+
+{ #category : 'tests' }
 IGASTTest >> testFlattenedNodesAssignment1 [
 
 	| assignment1 |
@@ -99,4 +114,58 @@ IGASTTest >> testFlattenedNodesAssignmentInReceiver [
 	flattenedNode1 := OCParser parseExpression: 'a msg: 7'.
 	
 	self assertCollection: assignment1 flattenedNodes equals: { innerNode . flattenedNode1 }
+]
+
+{ #category : 'tests' }
+IGASTTest >> testFlattenedNodesBlockWithInnerAssignement [
+
+	| blockNode flattenedBlock |
+
+	blockNode := OCParser parseExpression: '[ a := 1. b + (c := 2) ]'.
+	flattenedBlock := OCParser parseExpression: '[ a := 1. c := 2. b + c ]'.
+
+	self assertCollection: blockNode flattenedNodes
+		equals: { flattenedBlock }
+]
+
+{ #category : 'tests' }
+IGASTTest >> testFlattenedNodesCascadeWithInnerAssignement [
+
+	| cascadeNode innerAssignement flattenedCascade |
+
+	cascadeNode := OCParser parseExpression: 'obj msg1; msg2: (x := 5); msg3'.
+	innerAssignement := OCParser parseExpression: 'x := 5'.
+	flattenedCascade := OCParser parseExpression: 'obj msg1; msg2: x; msg3'.
+
+	self assertCollection: cascadeNode flattenedNodes
+		equals: {
+				innerAssignement.
+				flattenedCascade }
+]
+
+{ #category : 'tests' }
+IGASTTest >> testFlattenedNodesMessageWithoutAssignement [
+
+	| messageNode flattenedMessage |
+
+	messageNode := OCParser parseExpression: 'a msg1: b plus: c'.
+	flattenedMessage := OCParser parseExpression: 'a msg1: b plus: c'.
+
+	self assertCollection: messageNode flattenedNodes
+		equals: { flattenedMessage }
+]
+
+{ #category : 'tests' }
+IGASTTest >> testFlattenedNodesReturnWithInnerAssignement [
+
+	| returnNode innerAssignement flattenedReturn |
+
+	returnNode := OCParser parseExpression: '^ (x := 7)'.
+	innerAssignement := OCParser parseExpression: 'x := 7'.
+	flattenedReturn := OCParser parseExpression: '^ x'.
+
+	self assertCollection: returnNode flattenedNodes
+		equals: {
+				innerAssignement.
+				flattenedReturn }
 ]

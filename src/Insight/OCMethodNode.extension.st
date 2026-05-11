@@ -12,3 +12,9 @@ OCMethodNode >> flattened [
 	
 	^ self copy body: (self body flattened); yourself
 ]
+
+{ #category : '*Insight' }
+OCMethodNode >> flattenedNodes [
+
+	^ self flattened
+]
