@@ -33,6 +33,28 @@ IGASTTest >> testAssignmentNodeToList1 [
 ]
 
 { #category : 'tests' }
+IGASTTest >> testFlattenedNodesArrayPreserveOrder [
+
+	| arrayNode firstAssignment chainedAssignmentInner chainedAssignmentOuter lastAssignment flattenedAray |
+
+	arrayNode := OCParser parseExpression: '{ a := 1. b := a := a * 3. c := b - 2 }'.
+
+	firstAssignment := OCParser parseExpression: 'a := 1'.
+	chainedAssignmentInner := OCParser parseExpression: 'a := a * 3'.
+	chainedAssignmentOuter := OCParser parseExpression: 'b := a'.
+	lastAssignment := OCParser parseExpression: 'c := b - 2'.
+	flattenedAray := OCParser parseExpression: '{ a. b. c }'.
+
+	self assertCollection: arrayNode flattenedNodes
+		equals: {
+				firstAssignment.
+				chainedAssignmentInner.
+				chainedAssignmentOuter.
+				lastAssignment.
+				flattenedAray }
+]
+
+{ #category : 'tests' }
 IGASTTest >> testFlattenedNodesArrayWithInnerAssignement [
 
 	| arrayNode innerAssignement flattenedArray |
