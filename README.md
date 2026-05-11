@@ -101,8 +101,8 @@ The `IG-CodeCov` package provides a high-level coverage profiler built on top of
 | profiler result |
 profiler := IGCodeCoverageProfiler new.
 
-profiler methodsToinstrument: { MyClass >> #foo . MyClass >> #bar}.
-profiler classesToIntrument: { MyOtherClass }.
+profiler methodsToInstrument: { MyClass >> #foo . MyClass >> #bar}.
+profiler classesToInstrument: { MyOtherClass }.
 
 profiler profileOn: [ MyApplication new run ].
 result := profiler coverageResult.
