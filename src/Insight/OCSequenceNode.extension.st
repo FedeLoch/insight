@@ -15,3 +15,9 @@ OCSequenceNode >> flattened [
 
 	^ self copy statements: newStatements; yourself
 ]
+
+{ #category : '*Insight' }
+OCSequenceNode >> flattenedNodes [
+
+	^ self flattened
+]
