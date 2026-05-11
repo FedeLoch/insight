@@ -9,9 +9,9 @@ Class {
 		'coverageResult',
 		'statementCounter'
 	],
-	#category : 'IG-CodeCov-IG-CodeCoverage',
+	#category : 'IG-CodeCov-CodeCoverage',
 	#package : 'IG-CodeCov',
-	#tag : 'IG-CodeCoverage'
+	#tag : 'CodeCoverage'
 }
 
 { #category : 'private' }
@@ -38,8 +38,7 @@ IGCodeCoverageProfiler >> buildResultFor: aCollectionOfMethods [
 IGCodeCoverageProfiler >> classesToInstrument: aCollectionOfClasses [
 	" Sugar for getting and instrumenting the methods from the classes."
 
-	self methodsToInstrument:
-		(aCollectionOfClasses flatCollect: #definedMethods)
+	self methodsToInstrument: (aCollectionOfClasses flatCollect: #definedMethods)
 ]
 
 { #category : 'accessing' }
@@ -50,17 +49,16 @@ IGCodeCoverageProfiler >> coverageResult [
 
 { #category : 'private' }
 IGCodeCoverageProfiler >> getCountersFor: aMethod [
-	"Get the counter values for each statement in the method and return them as an IdentityDictionary keyed by the AST node."
+	"Get the counter values for each statement in the method and return them as an OrderedIdentityDictionary keyed by the AST node."
 
-	| executedStatements |
+	| counters |
 
-	executedStatements := IdentityDictionary new.
+	counters := OrderedIdentityDictionary new.
 	"Reject temporaries, as they are not statements and thus not relevant for coverage."
 	aMethod ast allStatementsWithoutTemporaries do: [ :eachNode |
-			executedStatements at: eachNode
-				put: (statementCounter countAt: eachNode)
-			].
-	^ executedStatements
+			counters at: eachNode
+				put: (statementCounter countAt: eachNode) ].
+	^ counters
 ]
 
 { #category : 'initialization' }
@@ -98,5 +96,6 @@ IGCodeCoverageProfiler >> profileOn: aBlock [
 	instrumentation instrumentMethods: instrumentedMethods
 		during: aBlock.
 
-	coverageResult := self buildResultFor: instrumentedMethods
+	coverageResult := self buildResultFor: instrumentedMethods.
+	^ coverageResult
 ]

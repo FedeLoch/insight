@@ -92,6 +92,47 @@ IGInstrumentation new
     instrumentMethod: #example during: [ self example ]
 ```
 
+## Code Coverage
+The `IG-CodeCov` package provides a high-level coverage profiler built on top of the instrumentation framework.
+
+### Basic Usage
+
+```smalltalk
+| profiler result |
+profiler := IGCodeCoverageProfiler new.
+
+profiler methodsToinstrument: { MyClass >> #foo . MyClass >> #bar}.
+profiler classesToIntrument: { MyOtherClass }.
+
+profiler profileOn: [ MyApplication new run ].
+result := profiler coverageResult.
+```
+### Querying Coverage
+
+Aggregate percentages:
+
+```smalltalk
+result fullyCoveredPercentages
+result partiallyCoveredPercentages
+result uncoveredPercentages
+```
+Per-method coverage:
+
+```smalltalk
+result coverageFor: (MyClass >> #foo). "=> Float in range [0...100]"
+```
+
+### Statement Highlighting
+
+Method-list accessors return an object that expose the executed and non-executed statements, in source order:
+
+```smalltalk
+result partiallyCoveredMethods do: [ :eachRecord |
+    eachRecord method.                  "=> the CompiledMethod"
+    eachRecord executedStatements.      "=> AST node than ran"
+    eachRecord nonExecutedStatements ]. "=> AST nodes that did not run"
+```
+
 ## Implementation Details
 
 Insight rewrites the methods AST using the Opal Compiler to inject instrumentation nodes:

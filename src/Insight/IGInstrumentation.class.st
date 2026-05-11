@@ -111,8 +111,7 @@ IGInstrumentation >> instrumentMethods: methodCollection during: blockToEval [
 
 	[
 		methodCollection do: [ :method | self instrumentMethod: method ].
-		blockToEval value
-		] ensure: [
+		blockToEval value ] ensure: [
 		methodCollection do: [ :method | self uninstrumentMethod: method ] ]
 ]
 

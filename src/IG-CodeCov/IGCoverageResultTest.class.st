@@ -1,9 +1,9 @@
 Class {
 	#name : 'IGCoverageResultTest',
 	#superclass : 'TestCase',
-	#category : 'IG-CodeCov-IG-CodeCoverageTest',
+	#category : 'IG-CodeCov-CodeCoverageTest',
 	#package : 'IG-CodeCov',
-	#tag : 'IG-CodeCoverageTest'
+	#tag : 'CodeCoverageTest'
 }
 
 { #category : 'helper' }
@@ -49,6 +49,28 @@ IGCoverageResultTest >> profileInstrumenting: aMethodCollection running: aBlock 
 	^profiler coverageResult
 ]
 
+{ #category : 'tests' }
+IGCoverageResultTest >> testEmptyMethodCoverageIsO [
+
+	| method |
+
+	method := IGCoverageMock >> #emptyMethod.
+	self assertCoverageForMethod: method running: [ "Nothing" ] equals: 0 asFloat
+]
+
+{ #category : 'tests' }
+IGCoverageResultTest >> testEmptyMethodIsNotFullyCovered [
+
+	| method coverage |
+
+	method := IGCoverageMock >> #emptyMethod.
+	coverage := self profileInstrumenting: { method }
+		            running: [ IGCoverageMock new emptyMethod ].
+
+	self denyCollection: (coverage fullyCoveredMethods collect: #method)
+		includesAny: { method }
+]
+
 { #category : 'tests – lists' }
 IGCoverageResultTest >> testFullyCoveredContainExecutedMethods [
 
@@ -59,7 +81,7 @@ IGCoverageResultTest >> testFullyCoveredContainExecutedMethods [
 		           (IGCoverageMock >> #oneStatement) }.
 	coverage := self profileInstrumenting: methods
 		            running: [ IGCoverageMock new callSubMethod ].
-	self assertCollection: coverage fullyCoveredMethods
+	self assertCollection: (coverage fullyCoveredMethods collect: #method)
 		includesAll: methods
 ]
 
@@ -92,7 +114,7 @@ IGCoverageResultTest >> testPartiallyCoveredContainBranchingMethod [
 
 	coverage := self basicCoverage.
 
-	self assertCollection: coverage partiallyCoveredMethods
+	self assertCollection: (coverage partiallyCoveredMethods collect: #method)
 		includesAll: { (IGCoverageMock >> #conditionalMethod:) }
 ]
 
@@ -172,6 +194,6 @@ IGCoverageResultTest >> testUncoveredContainEmptyMethod [
 	coverage := self profileInstrumenting: { method }
 		            running: [ "Nothing" ].
 
-	self assertCollection: coverage uncoveredMethods
+	self assertCollection: (coverage uncoveredMethods collect: #method)
 		includesAny: { method }
 ]
