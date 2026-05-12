@@ -66,6 +66,12 @@ IGInstrumentation >> initialize [
 ]
 
 { #category : 'as yet unclassified' }
+IGInstrumentation >> instrument: methodCollection [
+
+	methodCollection do: [ :method | self instrumentMethod: method ]
+]
+
+{ #category : 'as yet unclassified' }
 IGInstrumentation >> instrumentClass: aClass during: blockToEval [
 
 	| previousMethods |
@@ -104,10 +110,8 @@ IGInstrumentation >> instrumentMethod: method during: blockToEval [
 IGInstrumentation >> instrumentMethods: methodCollection during: blockToEval [
 
 	[
-		methodCollection do: [ :method | self instrumentMethod: method ].
-		blockToEval value
-		] ensure: [
-		methodCollection do: [ :method | self uninstrumentMethod: method ] ]
+		self instrument: methodCollection.
+		blockToEval value ] ensure: [ self uninstrument: methodCollection ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -221,6 +225,12 @@ IGInstrumentation >> rewriteReturnNode: node before: beforeNodes after: afterNod
 
 	^ node parent replaceNode: node withNodes:
 		beforeNodes asArray, { assigmentNode }, afterNodes asArray, { newReturnNode }
+]
+
+{ #category : 'as yet unclassified' }
+IGInstrumentation >> uninstrument: methodCollection [
+
+	methodCollection do: [ :method | self uninstrumentMethod: method ]
 ]
 
 { #category : 'as yet unclassified' }

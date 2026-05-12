@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'instrumentedMethods',
 		'coverageResult',
-		'statementCounter'
+		'statementCounter',
+		'instrumentation'
 	],
 	#category : 'IG-CodeCov-IG-CodeCoverage',
 	#package : 'IG-CodeCov',
@@ -69,7 +70,15 @@ IGCodeCoverageProfiler >> initialize [
 	super initialize.
 	instrumentedMethods := Set new.
 	"In case the result is requested before any profiling has been done"
-	coverageResult := IGCoverageResult new
+	coverageResult := IGCoverageResult new.
+	statementCounter := IGCounter new countKeyBy: #astNode.
+	instrumentation := IGInstrumentation new addHook: (IGAfterStatementHook new do: statementCounter)
+]
+
+{ #category : 'api' }
+IGCodeCoverageProfiler >> instrument [
+
+	instrumentation instrument: instrumentedMethods
 ]
 
 { #category : 'private - accessing' }
@@ -83,6 +92,45 @@ IGCodeCoverageProfiler >> methodsToInstrument: aCollectionOfMethods [
 	"Register every method found in the collection for profiling."
 
 	instrumentedMethods addAll: aCollectionOfMethods
+]
+
+{ #category : 'as yet unclassified' }
+IGCodeCoverageProfiler >> overhead [
+
+	<script: 'self new overhead inspect'>
+	| profiler baselineTime instrumentTime instrumentedExecutionTime uninstrumentTime |
+	"Baseline"
+	baselineTime := ((1 to: 10) collect: [ :i |
+		                 [ 'Microdown-Tests' asPackage testSuite run ]
+			                 timeToRun ]) average asMilliSeconds.
+
+	"1417 MilliSeconds"
+
+	profiler := IGCodeCoverageProfiler new
+		            classesToInstrument:
+			            'Microdown' asPackage definedClasses;
+		            yourself.
+	"Instrument"
+	instrumentTime := [ profiler instrument ] timeToRun asMilliSeconds.
+	"231 MilliSeconds"
+
+	"Execution"
+	instrumentedExecutionTime := ((1 to: 10) collect: [ :i |
+		                              [
+		                              'Microdown-Tests' asPackage testSuite
+			                              run ] timeToRun ]) average
+		                             asMilliSeconds.
+	"1616 MilliSeconds"
+
+	"Uninstrument"
+	uninstrumentTime := [ profiler uninstrument ] timeToRun
+		                    asMilliSeconds.
+	"32 MilliSeconds"
+	^ {
+		  ('baselineTime' -> baselineTime).
+		  ('instrumentTime' -> instrumentTime).
+		  ('instrumentedExecutionTime' -> instrumentedExecutionTime).
+		  ('uninstrumentTime' -> uninstrumentTime) } asDictionary
 ]
 
 { #category : 'api' }
@@ -99,4 +147,10 @@ IGCodeCoverageProfiler >> profileOn: aBlock [
 		during: aBlock.
 
 	coverageResult := self buildResultFor: instrumentedMethods
+]
+
+{ #category : 'api' }
+IGCodeCoverageProfiler >> uninstrument [
+
+	instrumentation uninstrument: instrumentedMethods
 ]
